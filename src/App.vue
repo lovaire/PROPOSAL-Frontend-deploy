@@ -1,39 +1,31 @@
 <template>
   <div id="app">
-    <h1>Users List</h1>
-    <ul>
-      <li v-for="user in users" :key="user.id">
-        {{ user.username }}
-      </li>
-    </ul>
+    <ItemMaster />
   </div>
 </template>
 
 <script>
-import axios from 'axios';
+// Mengambil file ItemMaster.vue dari folder components
+import ItemMaster from './components/ItemMaster.vue';
 
 export default {
   name: 'App',
-  data() {
-    return {
-      users: []  // Menyimpan data pengguna yang diterima dari backend
-    };
-  },
-  mounted() {
-    // Lakukan request GET ke backend
-    axios.get('http://localhost:8080/api/users')  // URL backend kamu
-      .then(response => {
-        this.users = response.data;  // Menyimpan data pengguna
-      })
-      .catch(error => {
-        console.log('Error fetching data:', error);
-      });
+  components: {
+    ItemMaster
   }
 };
 </script>
 
-<style scoped>
-h1 {
-  color: #42b983;
+<style>
+/* Reset margin bawaan browser agar layout penuh ke ujung layar */
+body, html { 
+  margin: 0; 
+  padding: 0; 
+  height: 100%;
+  background-color: #f4f4f9;
+}
+
+#app {
+  height: 100%;
 }
 </style>
