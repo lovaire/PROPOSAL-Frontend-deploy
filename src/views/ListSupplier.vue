@@ -22,6 +22,7 @@
             <th>Alamat</th>
             <th>PIC</th>
             <th>Kontak</th>
+            <th>Status</th>
             <th class="action-col">Action</th>
           </tr>
         </thead>
@@ -36,9 +37,16 @@
             <td>{{ supplier.alamat }}</td>
             <td>{{ supplier.pic }}</td>
             <td>{{ supplier.kontak }}</td>
+            <td>
+              <span :class="['status-badge', getStatus(supplier.akhirKontrak).toLowerCase()]">
+                {{ getStatus(supplier.akhirKontrak) }}
+              </span>
+            </td>
             <td class="action-buttons">
               <button class="update-btn" @click="openModal(supplier)">Update</button>
-              <button class="delete-btn">Delete</button>
+              <button class="delete-btn" @click="handleDelete(supplier.id, supplier.nama)">
+                  Delete
+              </button>
             </td>
           </tr>
 
@@ -98,6 +106,7 @@
 import { ref, computed, onMounted } from "vue";
 import MainLayout from "../layouts/MainLayout.vue";
 import { getAllSuppliers, createSupplier, updateSupplierApi } from "../api/apiSupplier";
+import { deleteSupplierApi } from "../api/apiSupplier";
 
 const items = ref([]);
 const searchQuery = ref("");
@@ -126,6 +135,16 @@ const fetchSuppliers = async () => {
   } finally {
     loading.value = false;
   }
+};
+
+const getStatus = (akhirKontrak) => {
+  if (!akhirKontrak) return "Unknown";
+  
+  const today = new Date();
+  const expiryDate = new Date(akhirKontrak);
+  
+  // Jika tanggal hari ini belum melewati tanggal berakhir
+  return today <= expiryDate ? "Active" : "Inactive";
 };
 
 const filteredSuppliers = computed(() => {
@@ -173,11 +192,48 @@ const handleSubmit = async () => {
     submitting.value = false;
   }
 };
+const handleDelete = async (id, nama) => {
+  if (confirm(`Apakah Anda yakin ingin menghapus ${nama}?`)) {
+    try {
+      await deleteSupplierApi(id);
+      alert("Supplier berhasil dihapus!");
+      await fetchSuppliers(); // Refresh tabel
+    } catch (err) {
+      alert("Gagal menghapus data.");
+    }
+  }
+};
 
 onMounted(fetchSuppliers);
 </script>
 
 <style scoped>
+
+.status-badge {
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.status-badge.active {
+  background-color: #e6f4ea;
+  color: #1e7e34;
+  border: 1px solid #b7e1cd;
+}
+
+.status-badge.inactive {
+  background-color: #fce8e6;
+  color: #d93025;
+  border: 1px solid #f98b7f;
+}
+
+.status-badge.unknown {
+  background-color: #f8f9fa;
+  color: #5f6368;
+}
+
 .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
 .create-btn { background-color: #dff0e7; color: #3a6f5c; border: none; border-radius: 12px; padding: 14px 22px; font-weight: 600; cursor: pointer; }
 
