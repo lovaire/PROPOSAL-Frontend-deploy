@@ -2,7 +2,7 @@
   <MainLayout>
     <div class="page-header">
       <div></div>
-      <button class="create-btn">+ Create Account</button>
+      <button class="create-btn" @click="$router.push('/register')" v-if="isAdmin">+ Create Account</button>
     </div>
 
     <div class="table-card">
@@ -30,8 +30,20 @@
             <td>{{ user.username }}</td>
             <td>{{ capitalizeRole(user.role) }}</td>
             <td class="action-buttons">
-              <button class="update-btn" @click="openUpdateModal(user)">Update</button>
-              <button class="delete-btn" @click="openDeleteModal(user)">Delete</button>
+              <button
+                v-if="isAdmin || user.id === currentUserId"
+                class="update-btn"
+                @click="openUpdateModal(user)"
+              >
+                Update
+              </button>
+              <button
+                v-if="isAdmin"
+                class="delete-btn"
+                @click="openDeleteModal(user)"
+              >
+                Delete
+              </button>
             </td>
           </tr>
         </tbody>
@@ -54,12 +66,13 @@
         />
 
         <label>Role</label>
-        <select v-model="editForm.role">
+        <select v-if="isAdmin" v-model="editForm.role">
           <option value="admin">Admin</option>
           <option value="manager">Manager</option>
           <option value="financial">Financial</option>
           <option value="inventory">Inventory</option>
         </select>
+        <p v-else class="role-text">{{ capitalizeRole(editForm.role) }}</p>
 
         <div class="modal-actions single">
           <button class="done-btn" @click="handleUpdate" :disabled="submitting">
@@ -91,9 +104,12 @@
 </template>
 
 <script setup>
-import { onMounted, ref } from "vue";
+import { onMounted, ref, computed } from "vue";
+import { useAuthStore } from "@/stores/profile";
 import MainLayout from "../layouts/MainLayout.vue";
 import { getAllUsers, updateUser, deleteUser } from "../api/userApi";
+
+const authStore = useAuthStore();
 
 const users = ref([]);
 const loading = ref(false);
@@ -102,6 +118,11 @@ const submitting = ref(false);
 const showUpdateModal = ref(false);
 const showDeleteModal = ref(false);
 const selectedUser = ref(null);
+
+// Data user yang login dari store
+const currentUserId = computed(() => authStore.user?.id || '');
+const currentUserRole = computed(() => authStore.user?.role || '');
+const isAdmin = computed(() => currentUserRole.value === 'admin');
 
 const editForm = ref({
   username: "",
@@ -154,12 +175,13 @@ const handleUpdate = async () => {
   try {
     const payload = {
       username: editForm.value.username,
-      password: editForm.value.password,
-      role: editForm.value.role,
     };
-
-    if (!payload.password) {
-      delete payload.password;
+    if (editForm.value.password) {
+      payload.password = editForm.value.password;
+    }
+    // Hanya admin yang boleh mengirim role
+    if (isAdmin.value) {
+      payload.role = editForm.value.role;
     }
 
     await updateUser(selectedUser.value.id, payload);
@@ -207,13 +229,13 @@ onMounted(() => {
 </script>
 
 <style scoped>
+/* Masukkan semua style dari file sebelumnya */
 .page-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 24px;
 }
-
 .create-btn {
   background-color: #dff0e7;
   color: #3a6f5c;
@@ -224,46 +246,38 @@ onMounted(() => {
   font-weight: 600;
   cursor: pointer;
 }
-
 .table-card {
   background: #fff;
   border-radius: 20px;
   overflow: hidden;
   border: 1px solid #f0deda;
 }
-
 table {
   width: 100%;
   border-collapse: collapse;
 }
-
 thead {
   background-color: #f4dfda;
 }
-
 th {
   text-align: left;
   padding: 18px 20px;
   font-size: 15px;
   color: #333;
 }
-
 td {
   padding: 18px 20px;
   border-top: 1px solid #f3e5e1;
   color: #444;
   font-size: 14px;
 }
-
 .action-col {
   width: 220px;
 }
-
 .action-buttons {
   display: flex;
   gap: 12px;
 }
-
 .update-btn {
   background-color: #158f67;
   color: white;
@@ -273,7 +287,6 @@ td {
   cursor: pointer;
   font-weight: 600;
 }
-
 .delete-btn {
   background-color: #d91f11;
   color: white;
@@ -283,13 +296,11 @@ td {
   cursor: pointer;
   font-weight: 600;
 }
-
 .state-text {
   text-align: center;
   color: #777;
   padding: 30px;
 }
-
 .modal-overlay {
   position: fixed;
   inset: 0;
@@ -299,7 +310,6 @@ td {
   align-items: center;
   z-index: 999;
 }
-
 .modal-box {
   width: 420px;
   background: white;
@@ -307,14 +317,12 @@ td {
   padding: 36px 42px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
 }
-
 .modal-box h2 {
   margin: 0 0 24px 0;
   font-size: 22px;
   font-weight: 700;
   color: #1d1d1d;
 }
-
 .modal-box label {
   display: block;
   margin-bottom: 8px;
@@ -323,7 +331,6 @@ td {
   font-weight: 600;
   color: #333;
 }
-
 .modal-box input,
 .modal-box select {
   width: 100%;
@@ -334,18 +341,15 @@ td {
   font-size: 14px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
 }
-
 .modal-actions {
   display: flex;
   justify-content: flex-end;
   gap: 12px;
   margin-top: 28px;
 }
-
 .modal-actions.single {
   justify-content: flex-end;
 }
-
 .done-btn {
   background: #2e7d32;
   color: white;
@@ -355,17 +359,14 @@ td {
   font-weight: 600;
   cursor: pointer;
 }
-
 .delete-box {
   width: 460px;
 }
-
 .delete-box p {
   color: #333;
   font-size: 15px;
   line-height: 1.5;
 }
-
 .cancel-btn {
   background: white;
   border: 1px solid #e5e5e5;
@@ -375,7 +376,6 @@ td {
   font-weight: 600;
   cursor: pointer;
 }
-
 .confirm-delete-btn {
   background: white;
   border: 2px solid #3aa17e;
@@ -384,5 +384,13 @@ td {
   padding: 12px 28px;
   font-weight: 600;
   cursor: pointer;
+}
+.role-text {
+  margin-top: 8px;
+  padding: 14px 16px;
+  background-color: #f5f5f5;
+  border-radius: 10px;
+  font-size: 14px;
+  color: #333;
 }
 </style>
