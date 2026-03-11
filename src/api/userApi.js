@@ -28,7 +28,7 @@
 // };
 import { createApi } from "@/api/base";
 
-const api = createApi("http://localhost:8080/api"); // sesuaikan dengan backend
+const api = createApi("http://localhost:8082/api"); // sesuaikan dengan backend
 
 export const getAllUsers = () => {
     return api.get('/users');

@@ -24,7 +24,7 @@ const router = createRouter({
         },
         {
             path: '/',
-            redirect: '/users'
+            redirect: '/login'
         }
     ]
 });
@@ -36,10 +36,6 @@ router.beforeEach((to, from, next) => {
 
     if (to.meta.requiresAuth && !isLoggedIn) {
         next('/login');
-    } else if (to.meta.requiresGuest && isLoggedIn) {
-        next('/users');
-    } else if (to.meta.requiresAdmin && (!isLoggedIn || authStore.user?.role !== 'admin')) {
-        next('/users'); // atau halaman forbidden
     } else {
         next();
     }
