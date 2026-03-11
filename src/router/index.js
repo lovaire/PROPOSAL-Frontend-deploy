@@ -44,16 +44,7 @@ router.beforeEach((to, from, next) => {
 
     if (to.meta.requiresGuest && !isLoggedIn) {
         next('/login');
-    // } else if (to.meta.requiresGuest && isLoggedIn) {
-    //     next('/users');
-    // } else if (to.meta.requiresAdmin && (!isLoggedIn || userRole !== 'admin')) {
-    //     next('/users'); 
-    // } 
-    // else if (to.path === '/supplier' && !(userRole === 'admin' || userRole === 'inventori')) {
-    //     alert("Akses Ditolak: Hanya Admin atau Inventori!");
-    //     next('/supplier'); 
-    } 
-    else {
+    } else {
         next();
     }
 });
