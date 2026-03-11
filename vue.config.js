@@ -1,7 +1,5 @@
-const { defineConfig } = require('@vue/cli-service');
-
-module.exports = defineConfig({
+module.exports = {
   devServer: {
-    port: 8081, 
+    port: 8081
   }
-});
+}
