@@ -1,28 +1,28 @@
+<!-- eslint-disable-next-line vue/multi-word-component-names -->
 <script setup>
 import { ref } from "vue";
 import { useAuthStore } from "@/stores/profile";
-import router from "@/router";
+import { useRouter } from "vue-router";
 
 const authStore = useAuthStore();
+const router = useRouter();
 
 const formData = ref({
   email: '',
   password: ''
-})
+});
+
+const errorMessage = ref('');
 
 const handleLogin = async () => {
   try {
-    const payload = {
-      ...formData.value,
-    }
-
-    await authStore.login(payload)
-
-    await router.push('/register')
+    await authStore.login(formData.value);
+    router.push('/users');
   } catch (e) {
-    console.error(e) // Changed to console.error for better debugging
+    errorMessage.value = e.message;
+    console.error(e);
   }
-}
+};
 </script>
 
 <template>
@@ -40,16 +40,17 @@ const handleLogin = async () => {
     <div class="right-section">
       <div class="login-box">
         <h2>Login</h2>
+        <p v-if="errorMessage" class="error-message">{{ errorMessage }}</p>
 
         <form @submit.prevent="handleLogin">
           <div class="form-group">
             <label for="email">Email</label>
-            <input type="text" id="email" placeholder="Enter Email" v-model="formData.email">
+            <input type="text" id="email" placeholder="Enter Email" v-model="formData.email" required>
           </div>
 
           <div class="form-group">
             <label for="password">Password</label>
-            <input type="password" id="password" placeholder="Enter Password" v-model="formData.password">
+            <input type="password" id="password" placeholder="Enter Password" v-model="formData.password" required>
           </div>
 
           <button type="submit" class="login-btn">Login</button>

@@ -1,35 +1,32 @@
+<!-- eslint-disable-next-line vue/multi-word-component-names -->
 <script setup>
 import { ref } from "vue";
 import { useAuthStore } from "@/stores/profile";
-import router from "@/router";
+import { useRouter } from "vue-router";
 import MainLayout from "@/layouts/MainLayout.vue";
 
-// const isModalOpen = ref(false);
-// const openModal = () => { isModalOpen.value = true; };
-// const closeModal = () => { isModalOpen.value = false; };
-
 const authStore = useAuthStore();
+const router = useRouter();
 
 const formData = ref({
   email: '',
   username: '',
   password: '',
   role: ''
-})
+});
+
+const errorMessage = ref('');
 
 const handleRegister = async () => {
   try {
-    const payload = {
-      ...formData.value,
-    }
-
-    await authStore.register(payload)
-
-    await router.push('/')
+    await authStore.register(formData.value);
+    alert('User berhasil dibuat');
+    router.push('/users');
   } catch (e) {
-    console.error(e) // Changed to console.error for better debugging
+    errorMessage.value = e.message;
+    console.error(e);
   }
-}
+};
 </script>
 
 <template>
@@ -37,6 +34,7 @@ const handleRegister = async () => {
     <div class="modal-overlay">
       <div class="modal-card form-modal">
         <h3 class="modal-title">Create User</h3>
+        <p v-if="errorMessage" class="error">{{ errorMessage }}</p>
 
         <form @submit.prevent="handleRegister" class="modal-form">
           <div class="form-grid">
@@ -78,6 +76,11 @@ const handleRegister = async () => {
 </template>
 
 <style>
+.error {
+  color: red;
+  margin-bottom: 10px;
+}
+
 .modal-overlay {
   position: fixed;
   inset: 0;

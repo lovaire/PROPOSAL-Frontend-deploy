@@ -2,11 +2,15 @@ stages:
   - build
   - deploy
 
+cache:
+  paths:
+    - node_modules/
+
 build:
   stage: build
   image: node:20
   script:
-    - npm ci
+    - npm install
     - npm run build
   only:
     - branches
@@ -15,7 +19,7 @@ deploy:
   stage: deploy
   image: node:20
   script:
-    - npm ci
+    - npm install
     - npm install -g vercel
     - vercel pull --yes --environment=production --token=$VERCEL_TOKEN
     - vercel build --prod --token=$VERCEL_TOKEN

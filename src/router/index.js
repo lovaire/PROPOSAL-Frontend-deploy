@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import { useAuthStore } from '@/stores/profile';
 
 const router = createRouter({
     history: createWebHistory(),
@@ -7,15 +8,37 @@ const router = createRouter({
             path: '/register',
             name: 'register',
             component: () => import('@/views/profile/Register.vue'),
-            meta: { requireGuest: true }
+            meta: { requiresAuth: true, requiresAdmin: true } // hanya admin yang bisa akses
         },
         {
             path: '/login',
             name: 'login',
             component: () => import('@/views/profile/Login.vue'),
-            meta: { requireGuest: true }
+            meta: { requiresGuest: true }
+        },
+        {
+            path: '/users',
+            name: 'users',
+            component: () => import('@/views/UserManagementView.vue'),
+            meta: { requiresAuth: true }
+        },
+        {
+            path: '/',
+            redirect: '/login'
         }
     ]
-})
+});
 
-export default router
+// Navigation guard
+router.beforeEach((to, from, next) => {
+    const authStore = useAuthStore();
+    const isLoggedIn = !!authStore.token;
+
+    if (to.meta.requiresAuth && !isLoggedIn) {
+        next('/login');
+    } else {
+        next();
+    }
+});
+
+export default router;
