@@ -67,17 +67,30 @@
               </div>
               <div class="form-group">
                 <label>Category</label>
-                <input type="text" v-model="newItem.category" required />
+                <select v-model="newItem.category" required>
+                  <option value="" disabled>Pilih Kategori</option>
+                  <option value="Amenities">Amenities</option>
+                  <option value="Konsumsi">Konsumsi</option>
+                  <option value="Peralatan">Peralatan</option>
+                  <option value="Lain-lain">Lain-lain</option>
+                </select>
               </div>
             </div>
             <div class="form-row">
               <div class="form-group">
                 <label>Safety Stock</label>
-                <input type="number" v-model="newItem.safetyStock" required />
+                <input type="number" v-model="newItem.safetyStock" required min="0" />
               </div>
               <div class="form-group">
                 <label>Units</label>
-                <input type="text" v-model="newItem.unit" required />
+                <select v-model="newItem.unit" required>
+                  <option value="" disabled>Pilih Unit</option>
+                  <option value="Pcs">Pcs</option>
+                  <option value="Box">Box</option>
+                  <option value="Galon">Galon</option>
+                  <option value="Jerigen">Jerigen</option>
+                  <option value="Rim">Rim</option>
+                </select>
               </div>
             </div>
             <div class="modal-actions">
@@ -103,22 +116,35 @@
               </div>
               <div class="form-group">
                 <label>Category</label>
-                <input type="text" v-model="editItem.category" required />
+                <select v-model="editItem.category" required>
+                  <option value="" disabled>Pilih Kategori</option>
+                  <option value="Amenities">Amenities</option>
+                  <option value="Konsumsi">Konsumsi</option>
+                  <option value="Peralatan">Peralatan</option>
+                  <option value="Lain-lain">Lain-lain</option>
+                </select>
               </div>
             </div>
             <div class="form-row">
               <div class="form-group">
                 <label>Safety Stock</label>
-                <input type="number" v-model="editItem.safetyStock" required />
+                <input type="number" v-model="editItem.safetyStock" required min="0" />
               </div>
               <div class="form-group">
                 <label>Units</label>
-                <input type="text" v-model="editItem.unit" required />
+                <select v-model="editItem.unit" required>
+                  <option value="" disabled>Pilih Unit</option>
+                  <option value="Pcs">Pcs</option>
+                  <option value="Box">Box</option>
+                  <option value="Galon">Galon</option>
+                  <option value="Jerigen">Jerigen</option>
+                  <option value="Rim">Rim</option>
+                </select>
               </div>
             </div>
             <div class="form-group">
               <label>Status</label>
-              <select v-model="editItem.isActive" required style="padding: 10px; border: 1px solid #ccc; border-radius: 5px;">
+              <select v-model="editItem.isActive" required>
                 <option :value="true">Active</option>
                 <option :value="false">Inactive</option>
               </select>
@@ -188,10 +214,10 @@ export default {
         this.showAddModal = false;
         this.newItem = { name: '', category: '', safetyStock: '', unit: '' };
         this.fetchItems();
-        alert("Barang berhasil ditambahkan!");
+        alert("Item berhasil ditambah");
       } catch (error) {
         console.error("Error adding item:", error);
-        alert("Gagal menambahkan barang.");
+        alert("Gagal menambahkan barang. Cek inputan Anda.");
       }
     },
 
@@ -205,10 +231,10 @@ export default {
         await axios.put('http://localhost:8080/api/item/update', this.editItem);
         this.showEditModal = false;
         this.fetchItems();
-        alert("Barang berhasil diperbarui!");
+        alert("Item berhasil ter update");
       } catch (error) {
         console.error("Error updating item:", error);
-        alert("Gagal memperbarui barang.");
+        alert("Gagal memperbarui barang. Cek inputan Anda.");
       }
     },
 
@@ -219,10 +245,13 @@ export default {
     },
     async confirmDelete() {
       try {
+        // PERHATIAN: Pastikan URL ini sesuai dengan backend-mu. 
+        // Jika asdos minta lewat body request, ini butuh disesuaikan. 
+        // Saat ini pakai path variable sesuai kode aslimu.
         await axios.delete(`http://localhost:8080/api/item/delete/${this.itemToDelete}`);
         this.showDeleteModal = false;
         this.fetchItems();
-        alert("Barang berhasil dihapus!");
+        alert("Item berhasil terhapus");
       } catch (error) {
         console.error("Error deleting item:", error);
         alert("Gagal menghapus barang.");
@@ -269,8 +298,19 @@ th { background-color: #f9f9f9; color: #555; }
 .form-row { display: flex; gap: 15px; }
 .form-group { flex: 1; margin-bottom: 15px; display: flex; flex-direction: column; text-align: left; }
 .form-group label { margin-bottom: 5px; font-weight: bold; font-size: 0.9em; color: #555; }
-.form-group input { padding: 10px; border: 1px solid #ccc; border-radius: 5px; }
-.form-group input:disabled { background-color: #f5f5f5; }
+
+/* Menambahkan select agar desainnya sama dengan input text */
+.form-group input, .form-group select { 
+  padding: 10px; 
+  border: 1px solid #ccc; 
+  border-radius: 5px; 
+  background-color: white; /* Supaya dropdown tidak abu-abu di beberapa browser */
+}
+
+.form-group input:disabled, .form-group select:disabled { 
+  background-color: #f5f5f5; 
+}
+
 .modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
 .btn-cancel { padding: 10px 20px; border: 1px solid #ccc; background: white; border-radius: 5px; cursor: pointer; }
 .btn-add-submit { padding: 10px 20px; background: #d32f2f; color: white; border: none; border-radius: 5px; cursor: pointer; }
