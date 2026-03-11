@@ -47,7 +47,13 @@ export const useAuthStore = defineStore('auth', () => {
         try {
             await profileApi.signup(payload);
         } catch (error) {
-            throw new Error(error.response?.data?.message || 'Registration Failed');
+            const status = error.response.status;
+
+            if (status === 400) {
+                throw new Error('Format Email tidak Valid!');
+            } else {
+                throw new Error('Register Tidak Berhasil');
+            }
         }
     };
 
@@ -70,7 +76,15 @@ export const useAuthStore = defineStore('auth', () => {
             localStorage.setItem('userId', user.value.id);
             localStorage.setItem('role', user.value.role);
         } catch (error) {
-            throw new Error(error.response?.data?.message || 'Login Failed');
+            const status = error.response.status;
+
+            if (status === 400) {
+                throw new Error('Format Email tidak Valid!');
+            } else if (status === 401) {
+                throw new Error('Email atau password Salah.');
+            } else {
+                throw new Error('Login Tidak Berhasil');
+            }
         }
     };
 
