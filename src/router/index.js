@@ -38,6 +38,12 @@ const router = createRouter({
             component: () => import('@/views/ListSupplier.vue'), 
             meta: { requiresAuth: true, requiresInv: true }
         },
+        {
+            path: '/items',
+            name: 'ItemMaster',
+            component: () => import('@/views/ItemMaster.vue'),
+            meta: { requiresAuth: true }
+        },
     ]
 });
 
