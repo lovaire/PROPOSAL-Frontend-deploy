@@ -1,6 +1,6 @@
 import { createApi } from "@/api/base";
 
-const api = createApi('http://localhost:8082/api');
+const api = createApi('http://localhost:8080/api');
 
 class ProfileApi {
     async signup(userData) {

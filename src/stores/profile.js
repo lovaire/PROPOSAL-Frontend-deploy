@@ -10,7 +10,16 @@ export const useAuthStore = defineStore('auth', () => {
     const user = ref(null);
     const router = useRouter();
 
-    // 1. Definisikan logout duluan
+    // Fungsi untuk membersihkan role dari prefix "ROLE_"
+    const cleanRole = (role) => {
+        if (!role) return '';
+        let cleaned = role.toLowerCase();
+        if (cleaned.startsWith('role_')) {
+            cleaned = cleaned.substring(5);
+        }
+        return cleaned;
+    };
+
     const logout = () => {
         authService.removeToken();
         token.value = '';
@@ -20,24 +29,23 @@ export const useAuthStore = defineStore('auth', () => {
         router.push('/login');
     };
 
-    // 2. Inisialisasi user dari token jika ada
     const initUserFromToken = () => {
         if (token.value) {
             try {
                 const decoded = jwtDecode(token.value);
-                // Sesuaikan dengan claims dari backend
+                const rawRole = decoded.role || '';
+                const role = cleanRole(rawRole);
                 user.value = {
                     id: decoded.userId || decoded.sub,
-                    role: (decoded.role || '').toLowerCase(),
+                    role: role,
                     username: decoded.username || decoded.sub,
                     email: decoded.email || ''
                 };
-                // Simpan juga di localStorage untuk komponen lain
                 localStorage.setItem('userId', user.value.id);
                 localStorage.setItem('role', user.value.role);
             } catch (e) {
                 console.error('Token tidak valid', e);
-                logout(); // sekarang logout sudah ada
+                logout();
             }
         }
     };
@@ -67,9 +75,11 @@ export const useAuthStore = defineStore('auth', () => {
             token.value = newToken;
 
             const decoded = jwtDecode(newToken);
+            const rawRole = decoded.role || '';
+            const role = cleanRole(rawRole);
             user.value = {
                 id: decoded.userId || decoded.sub,
-                role: (decoded.role || '').toLowerCase(),
+                role: role,
                 username: decoded.username || decoded.sub,
                 email: decoded.email || ''
             };
