@@ -30,17 +30,25 @@ const router = createRouter({
         },
         {
             path: '/',
-            redirect: '/login'
-        }
+            redirect: '/users'
+        },
+        {
+            path: '/supplier',
+            name: 'supplier',
+            component: () => import('@/views/ListSupplier.vue'), 
+            meta: { requiresAuth: true, requiresInv: true }
+        },
     ]
 });
 
 // Navigation guard
+// Navigation guard
 router.beforeEach((to, from, next) => {
     const authStore = useAuthStore();
     const isLoggedIn = !!authStore.token;
+    // const userRole = authStore.user?.role?.toLowerCase(); 
 
-    if (to.meta.requiresAuth && !isLoggedIn) {
+    if (to.meta.requiresGuest && !isLoggedIn) {
         next('/login');
     } else {
         next();

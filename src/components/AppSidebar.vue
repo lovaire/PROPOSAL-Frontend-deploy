@@ -17,6 +17,7 @@
     <div class="bottom-menu">
       <div class="menu-item">Account</div>
       <div class="menu-item logout">Logout</div>
+      <div class="menu-item logout">Supplier</div>
     </div>
   </aside>
 </template>
