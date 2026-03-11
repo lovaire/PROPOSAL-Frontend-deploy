@@ -1,33 +1,22 @@
 <template>
   <aside class="sidebar">
-    <div class="sidebar-top">
-      <div class="logo-section">
-        <img :src="logoUrl" alt="Logo" class="logo" />
-        <h2>Cansebu</h2>
-      </div>
-
-      <nav class="menu-group">
-        <router-link to="/transactions" class="menu-item" active-class="active">
-          <span class="menu-icon">📋</span>
-          <span>Transaction</span>
-        </router-link>
-      </nav>
+    <div class="logo-section">
+      <img :src="logoUrl" alt="Logo" class="logo" />
+      <h2>Cansebu</h2>
     </div>
 
-    <div class="sidebar-bottom">
-      <div class="bottom-divider"></div>
+    <nav class="menu">
+      <router-link to="/users" class="menu-item" active-class="active">
+        User Management
+      </router-link>
+      <router-link to="/transactions" class="menu-item" active-class="active">
+        Transactions
+      </router-link>
+    </nav>
 
-      <div class="bottom-menu">
-        <div class="menu-item bottom-item">
-          <span class="menu-icon">👤</span>
-          <span>Account</span>
-        </div>
-
-        <div class="menu-item bottom-item logout">
-          <span class="menu-icon">↪</span>
-          <span>Logout</span>
-        </div>
-      </div>
+    <div class="bottom-menu">
+      <div class="menu-item">Account</div>
+      <div class="menu-item logout">Logout</div>
     </div>
   </aside>
 </template>
@@ -38,27 +27,21 @@ import logoUrl from '../assets/logo.svg'
 
 <style scoped>
 .sidebar {
-  width: 240px;
+  width: 220px;
   min-height: 100vh;
-  background: #ffffff;
-  border-right: 1px solid #ece8e4;
+  background-color: #ffffff;
+  border-right: 1px solid #e5e5e5;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  padding: 18px 14px 20px;
-}
-
-.sidebar-top {
-  display: flex;
-  flex-direction: column;
-  gap: 28px;
+  padding: 20px 16px;
 }
 
 .logo-section {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 4px 4px 0;
+  margin-bottom: 30px;
 }
 
 .logo {
@@ -69,82 +52,43 @@ import logoUrl from '../assets/logo.svg'
 
 .logo-section h2 {
   margin: 0;
-  color: #b63124;
-  font-size: 20px;
-  font-weight: 800;
-  line-height: 1;
+  color: #d83b2d;
+  font-size: 28px;
+  font-weight: 700;
 }
 
-.menu-group {
+.menu {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
 }
 
 .menu-item {
   text-decoration: none;
-  color: #353535;
+  color: #333;
   padding: 12px 14px;
-  border-radius: 12px;
-  font-size: 14px;
-  font-weight: 500;
-  display: flex;
-  align-items: center;
-  gap: 10px;
+  border-radius: 10px;
+  font-size: 15px;
   cursor: pointer;
-  transition:
-    background-color 0.2s ease,
-    color 0.2s ease;
 }
 
 .menu-item:hover {
-  background: #f6f3f1;
-}
-
-.menu-icon {
-  width: 16px;
-  display: inline-flex;
-  justify-content: center;
-  font-size: 13px;
+  background-color: #f2f2f2;
 }
 
 .active {
-  background: #f9efed;
-  color: #b63124;
-  font-weight: 700;
-}
-
-.sidebar-bottom {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.bottom-divider {
-  height: 1px;
-  background: #ebe7e3;
-  margin: 0 4px;
+  background-color: #eef7f2;
+  color: #2d7d5f;
+  font-weight: 600;
 }
 
 .bottom-menu {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
 }
 
-.bottom-item,
 .logout {
-  color: #2f2f2f;
-}
-
-@media (max-width: 960px) {
-  .sidebar {
-    width: 210px;
-    padding: 16px 12px 18px;
-  }
-
-  .logo-section h2 {
-    font-size: 18px;
-  }
+  color: #444;
 }
 </style>
