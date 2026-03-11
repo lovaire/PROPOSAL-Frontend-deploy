@@ -1,13 +1,16 @@
 <template>
   <aside class="sidebar">
     <div class="logo-section">
-      <img src="/src/assets/logo.png" alt="Logo" class="logo" />
+      <img :src="logoUrl" alt="Logo" class="logo" />
       <h2>Cansebu</h2>
     </div>
 
     <nav class="menu">
       <router-link to="/users" class="menu-item" active-class="active">
         User Management
+      </router-link>
+      <router-link to="/transactions" class="menu-item" active-class="active">
+        Transactions
       </router-link>
     </nav>
 
@@ -20,6 +23,7 @@
 </template>
 
 <script setup>
+import logoUrl from '../assets/logo.svg'
 </script>
 
 <style scoped>

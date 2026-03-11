@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import { useAuthStore } from '@/stores/profile';
+import { useAuthStore } from '@/stores/profile'
 
 const router = createRouter({
     history: createWebHistory(),
@@ -20,6 +20,12 @@ const router = createRouter({
             path: '/users',
             name: 'users',
             component: () => import('@/views/UserManagementView.vue'),
+            meta: { requiresAuth: true }
+        },
+        {
+            path: '/transactions',
+            name: 'transactions',
+            component: () => import('@/views/TransactionView.vue'),
             meta: { requiresAuth: true }
         },
         {
