@@ -36,38 +36,38 @@ const routes = [
         component: () => import('@/views/ListSupplier.vue'),
         meta: { requiresAuth: true, requiresInv: true }
     },
+    {
+        path: '/items',
+        name: 'ItemMaster',
+        component: () => import('@/views/ItemMaster.vue'),
+        meta: { requiresAuth: true }
+    }
 ];
 
 const router = createRouter({
     history: createWebHistory(),
-    routes
+    routes // gunakan variabel routes
 });
 
-// Navigation guard dengan return value (tanpa parameter from)
+// Navigation guard dengan return value
 router.beforeEach((to) => {
     const authStore = useAuthStore();
     const isLoggedIn = !!authStore.token;
 
-    // Jika halaman membutuhkan guest (hanya untuk yang belum login)
     if (to.meta.requiresGuest) {
         if (isLoggedIn) {
-            // Jika sudah login, redirect ke halaman users
             return '/users';
         }
-        // Jika belum login, izinkan akses ke halaman guest
         return true;
     }
 
-    // Jika halaman membutuhkan autentikasi
     if (to.meta.requiresAuth) {
         if (!isLoggedIn) {
-            // Jika belum login, redirect ke login
             return '/login';
         }
-        // (Opsional) bisa tambahkan pengecekan role di sini
+        // TODO: tambahkan pengecekan role jika perlu
     }
 
-    // Untuk semua kasus lain, izinkan navigasi
     return true;
 });
 

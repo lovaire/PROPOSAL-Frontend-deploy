@@ -9,6 +9,15 @@
       <router-link to="/users" class="menu-item" active-class="active">
         User Management
       </router-link>
+
+      <router-link to="/items" class="menu-item" active-class="active">
+        Master Barang
+      </router-link>
+
+      <router-link to="/supplier" class="menu-item" active-class="active">
+        List Supplier
+      </router-link>
+
       <router-link to="/transactions" class="menu-item" active-class="active">
         Transactions
       </router-link>
@@ -17,7 +26,6 @@
     <div class="bottom-menu">
       <div class="menu-item">Account</div>
       <div class="menu-item logout">Logout</div>
-      <div class="menu-item logout">Supplier</div>
     </div>
   </aside>
 </template>
@@ -53,7 +61,7 @@ import logoUrl from '../assets/logo.svg'
 
 .logo-section h2 {
   margin: 0;
-  color: #d83b2d;
+  color: #d83b2d; /* Warna merah khas Cansebu */
   font-size: 28px;
   font-weight: 700;
 }
@@ -62,6 +70,7 @@ import logoUrl from '../assets/logo.svg'
   display: flex;
   flex-direction: column;
   gap: 12px;
+  flex-grow: 1; /* Agar menu fitur mengambil ruang sisa */
 }
 
 .menu-item {
@@ -71,12 +80,14 @@ import logoUrl from '../assets/logo.svg'
   border-radius: 10px;
   font-size: 15px;
   cursor: pointer;
+  transition: background-color 0.2s ease;
 }
 
 .menu-item:hover {
   background-color: #f2f2f2;
 }
 
+/* Style saat menu dipilih (Active) */
 .active {
   background-color: #eef7f2;
   color: #2d7d5f;
@@ -87,9 +98,11 @@ import logoUrl from '../assets/logo.svg'
   display: flex;
   flex-direction: column;
   gap: 10px;
+  border-top: 1px solid #eee; /* Pembatas antara fitur dan menu bawah */
+  padding-top: 20px;
 }
 
 .logout {
-  color: #444;
+  color: #d83b2d; /* Memberi warna merah pada logout sebagai peringatan */
 }
 </style>
