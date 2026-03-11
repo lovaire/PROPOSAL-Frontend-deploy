@@ -14,6 +14,7 @@ export const createApi = (baseURL) => {
     api.interceptors.request.use(
         (config) => {
             const token = authService.getToken();
+            console.log('Token dikirim:', token);
             if (token) {
                 config.headers.Authorization = `Bearer ${token}`;
             }

@@ -119,7 +119,6 @@ const showUpdateModal = ref(false);
 const showDeleteModal = ref(false);
 const selectedUser = ref(null);
 
-// Data user yang login dari store
 const currentUserId = computed(() => authStore.user?.id || '');
 const currentUserRole = computed(() => authStore.user?.role || '');
 const isAdmin = computed(() => currentUserRole.value === 'admin');
@@ -134,6 +133,7 @@ const fetchUsers = async () => {
   loading.value = true;
   try {
     const response = await getAllUsers();
+    console.log('Response users:', response);
     users.value = response.data.data || [];
   } catch (error) {
     console.error("Gagal mengambil data user:", error);
@@ -179,7 +179,6 @@ const handleUpdate = async () => {
     if (editForm.value.password) {
       payload.password = editForm.value.password;
     }
-    // Hanya admin yang boleh mengirim role, dan hanya jika role tidak kosong
     if (isAdmin.value && editForm.value.role && editForm.value.role.trim() !== '') {
       payload.role = editForm.value.role;
     }
