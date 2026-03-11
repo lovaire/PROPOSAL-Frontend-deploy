@@ -1,31 +1,35 @@
-<template>
-  <div id="app">
-    <ItemMaster />
-  </div>
+<!-- <template>
+  <router-view />
 </template>
 
-<script>
-// Mengambil file ItemMaster.vue dari folder components
-import ItemMaster from './components/ItemMaster.vue';
-
-export default {
-  name: 'App',
-  components: {
-    ItemMaster
-  }
-};
+<script setup>
 </script>
 
 <style>
-/* Reset margin bawaan browser agar layout penuh ke ujung layar */
-body, html { 
-  margin: 0; 
-  padding: 0; 
-  height: 100%;
-  background-color: #f4f4f9;
+body {
+  margin: 0;
+  font-family: Arial, Helvetica, sans-serif;
+  background-color: #f7f7f7;
 }
+* {
+  box-sizing: border-box;
+}
+</style> -->
+<template>
+  <router-view />
+</template>
 
-#app {
-  height: 100%;
+<script setup>
+// Tidak perlu data atau mounted
+</script>
+
+<style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+body {
+  font-family: Arial, Helvetica, sans-serif;
 }
 </style>

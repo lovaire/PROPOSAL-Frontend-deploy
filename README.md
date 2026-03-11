@@ -1,26 +1,27 @@
-TES TES TESS!
-IZIN tes
-# 
+# Sicansebu - Sistem Cansebu
+Sistem Informasi Cansebu
 
-## Project setup
-```
-npm install
-```
+## Development Team
+### **Team: PROPOSAL**
 
-### Compiles and hot-reloads for development
+|No | Member                        |   Role                             |
+|---|-------------------------------|----------------------------------- |
+| 1 | Thifaalinno Fawwaz Abdi       |   Product Owner / Project Manager  |
+| 2 | Irsyad Fadhilah               |   Scrum Master                     |
+| 3 | Rifqi Rahmatuloh              |   Lead Programmer                  |
+| 4 | Thariq Ziyad Al Farizi        |   Lead System Designer             |
+| 5 | Muhammad Hanif                |   Lead System Analyst              |
+
+
+### Modules
+
+**1. User Management** 
+
+
+### Database Setup
+- NeonDB
+
+# Run the application
 ```
 npm run serve
 ```
-
-### Compiles and minifies for production
-```
-npm run build
-```
-
-### Lints and fixes files
-```
-npm run lint
-```
-
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
