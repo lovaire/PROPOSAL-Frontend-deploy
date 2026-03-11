@@ -179,8 +179,8 @@ const handleUpdate = async () => {
     if (editForm.value.password) {
       payload.password = editForm.value.password;
     }
-    // Hanya admin yang boleh mengirim role
-    if (isAdmin.value) {
+    // Hanya admin yang boleh mengirim role, dan hanya jika role tidak kosong
+    if (isAdmin.value && editForm.value.role && editForm.value.role.trim() !== '') {
       payload.role = editForm.value.role;
     }
 
