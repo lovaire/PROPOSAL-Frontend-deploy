@@ -1,7 +1,17 @@
-<!-- <template>
+<template>
   <div class="layout">
     <AppSidebar />
     <main class="content">
+      <header class="topbar">
+        <div class="topbar-left">
+          <div class="app-title">SiCansebu</div>
+        </div>
+        <div class="user-menu" v-if="authStore.user">
+          <span class="user-text">{{ authStore.user.username }} ({{ authStore.user.role }})</span>
+          <button type="button" class="logout-btn" @click="logout">Logout</button>
+        </div>
+      </header>
+
       <slot />
     </main>
   </div>
@@ -9,6 +19,10 @@
 
 <script setup>
 import AppSidebar from '../components/AppSidebar.vue'
+import { useAuthStore } from '@/stores/profile'
+
+const authStore = useAuthStore()
+const logout = () => authStore.logout()
 </script>
 
 <style scoped>
@@ -22,70 +36,49 @@ import AppSidebar from '../components/AppSidebar.vue'
   flex: 1;
   padding: 32px;
 }
-</style> -->
-<template>
-  <div class="layout">
-    <header class="navbar">
-      <div class="logo">SiCansebu</div>
-      <div class="user-menu" v-if="authStore.user">
-        <span>{{ authStore.user.username }} ({{ authStore.user.role }})</span>
-        <button @click="logout" class="logout-btn">Logout</button>
-      </div>
-    </header>
-    <main class="content">
-      <slot />
-    </main>
-  </div>
-</template>
 
-<script setup>
-import { useAuthStore } from "@/stores/profile";
-
-const authStore = useAuthStore();
-
-const logout = () => {
-  authStore.logout();
-};
-</script>
-
-<style scoped>
-.layout {
-  min-height: 100vh;
+.topbar {
+  height: 54px;
+  background: #ffffff;
+  border: 1px solid #e9e9e9;
+  border-radius: 14px;
   display: flex;
-  flex-direction: column;
-}
-.navbar {
-  background: #7d3322;
-  color: white;
-  padding: 1rem 2rem;
-  display: flex;
+  align-items: center;
   justify-content: space-between;
-  align-items: center;
+  padding: 0 16px;
+  margin-bottom: 18px;
 }
-.logo {
-  font-size: 1.5rem;
-  font-weight: bold;
-}
-.user-menu {
-  display: flex;
-  gap: 1rem;
-  align-items: center;
-}
-.logout-btn {
-  background: transparent;
-  border: 1px solid white;
-  color: white;
-  padding: 0.5rem 1rem;
-  border-radius: 5px;
-  cursor: pointer;
-}
-.logout-btn:hover {
-  background: white;
+
+.app-title {
+  font-size: 16px;
+  font-weight: 800;
   color: #7d3322;
 }
-.content {
-  flex: 1;
-  padding: 2rem;
-  background: #f5f5f5;
+
+.user-menu {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.user-text {
+  color: #333;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.logout-btn {
+  background: transparent;
+  border: 1px solid #7d3322;
+  color: #7d3322;
+  height: 34px;
+  padding: 0 12px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 700;
+}
+.logout-btn:hover {
+  background: #7d3322;
+  color: #fff;
 }
 </style>
