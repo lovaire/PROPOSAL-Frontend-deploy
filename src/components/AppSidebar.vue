@@ -1,13 +1,25 @@
 <template>
   <aside class="sidebar">
     <div class="logo-section">
-      <img src="/src/assets/logo.png" alt="Logo" class="logo" />
+      <img :src="logoUrl" alt="Logo" class="logo" />
       <h2>Cansebu</h2>
     </div>
 
     <nav class="menu">
       <router-link to="/users" class="menu-item" active-class="active">
         User Management
+      </router-link>
+
+      <router-link to="/items" class="menu-item" active-class="active">
+        Master Barang
+      </router-link>
+
+      <router-link to="/supplier" class="menu-item" active-class="active">
+        List Supplier
+      </router-link>
+
+      <router-link to="/transactions" class="menu-item" active-class="active">
+        Transactions
       </router-link>
     </nav>
 
@@ -19,6 +31,7 @@
 </template>
 
 <script setup>
+import logoUrl from '../assets/logo.svg'
 </script>
 
 <style scoped>
@@ -48,7 +61,7 @@
 
 .logo-section h2 {
   margin: 0;
-  color: #d83b2d;
+  color: #d83b2d; /* Warna merah khas Cansebu */
   font-size: 28px;
   font-weight: 700;
 }
@@ -57,6 +70,7 @@
   display: flex;
   flex-direction: column;
   gap: 12px;
+  flex-grow: 1; /* Agar menu fitur mengambil ruang sisa */
 }
 
 .menu-item {
@@ -66,12 +80,14 @@
   border-radius: 10px;
   font-size: 15px;
   cursor: pointer;
+  transition: background-color 0.2s ease;
 }
 
 .menu-item:hover {
   background-color: #f2f2f2;
 }
 
+/* Style saat menu dipilih (Active) */
 .active {
   background-color: #eef7f2;
   color: #2d7d5f;
@@ -82,9 +98,11 @@
   display: flex;
   flex-direction: column;
   gap: 10px;
+  border-top: 1px solid #eee; /* Pembatas antara fitur dan menu bawah */
+  padding-top: 20px;
 }
 
 .logout {
-  color: #444;
+  color: #d83b2d; /* Memberi warna merah pada logout sebagai peringatan */
 }
 </style>

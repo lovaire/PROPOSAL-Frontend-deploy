@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import { useAuthStore } from '@/stores/profile';
+import { useAuthStore } from '@/stores/profile'
 
 const router = createRouter({
     history: createWebHistory(),
@@ -23,23 +23,39 @@ const router = createRouter({
             meta: { requiresAuth: true }
         },
         {
+            path: '/transactions',
+            name: 'transactions',
+            component: () => import('@/views/TransactionView.vue'),
+            meta: { requiresAuth: true }
+        },
+        {
             path: '/',
             redirect: '/users'
-        }
+        },
+        {
+            path: '/supplier',
+            name: 'supplier',
+            component: () => import('@/views/ListSupplier.vue'), 
+            meta: { requiresAuth: true, requiresInv: true }
+        },
+        {
+            path: '/items',
+            name: 'ItemMaster',
+            component: () => import('@/views/ItemMaster.vue'),
+            meta: { requiresAuth: true }
+        },
     ]
 });
 
 // Navigation guard
+// Navigation guard
 router.beforeEach((to, from, next) => {
     const authStore = useAuthStore();
     const isLoggedIn = !!authStore.token;
+    // const userRole = authStore.user?.role?.toLowerCase(); 
 
-    if (to.meta.requiresAuth && !isLoggedIn) {
+    if (to.meta.requiresGuest && !isLoggedIn) {
         next('/login');
-    } else if (to.meta.requiresGuest && isLoggedIn) {
-        next('/users');
-    } else if (to.meta.requiresAdmin && (!isLoggedIn || authStore.user?.role !== 'admin')) {
-        next('/users'); // atau halaman forbidden
     } else {
         next();
     }

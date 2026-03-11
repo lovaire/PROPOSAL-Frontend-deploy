@@ -107,7 +107,7 @@
 import { onMounted, ref, computed } from "vue";
 import { useAuthStore } from "@/stores/profile";
 import MainLayout from "../layouts/MainLayout.vue";
-import { getAllUsers, updateUser, deleteUser } from "../api/userApi";
+import { getAllUsers, updateUser, deleteUser } from "@/api/userApi";
 
 const authStore = useAuthStore();
 
