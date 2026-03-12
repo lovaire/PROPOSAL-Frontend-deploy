@@ -28,7 +28,7 @@
 // };
 // userApi.js
 import { createApi } from "@/api/base";
-const api = createApi(import.meta.env.VITE_API_URL || 'http://localhost:8080');
+const api = createApi(import.meta.env.VITE_API_URL || 'http://localhost:8080/api');
 
 export const getAllUsers = () => {
     return api.get('/users');
