@@ -47,15 +47,16 @@ const router = createRouter({
     ]
 });
 
-// Navigation guard
-// Navigation guard
 router.beforeEach((to, from, next) => {
     const authStore = useAuthStore();
     const isLoggedIn = !!authStore.token;
-    // const userRole = authStore.user?.role?.toLowerCase(); 
 
-    if (to.meta.requiresGuest && !isLoggedIn) {
+    if (to.meta.requiresAuth && !isLoggedIn) {
+        // Jika halaman membutuhkan auth dan belum login, redirect ke login
         next('/login');
+    } else if (to.meta.requiresGuest && isLoggedIn) {
+        // Jika halaman untuk guest dan sudah login, redirect ke users
+        next('/users');
     } else {
         next();
     }

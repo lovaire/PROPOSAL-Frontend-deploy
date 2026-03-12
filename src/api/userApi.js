@@ -26,9 +26,9 @@
 // export const deleteUser = async (id) => {
 //   return await apiClient.delete(`/users/${id}`);
 // };
+// userApi.js
 import { createApi } from "@/api/base";
-
-const api = createApi("http://localhost:8080/legacy/api"); // sesuaikan dengan backend
+const api = createApi(import.meta.env.VITE_API_URL || 'http://localhost:8080');
 
 export const getAllUsers = () => {
     return api.get('/users');
