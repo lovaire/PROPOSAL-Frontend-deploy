@@ -1,26 +1,8 @@
-<!-- <template>
-  <router-view />
-</template>
-
-<script setup>
-</script>
-
-<style>
-body {
-  margin: 0;
-  font-family: Arial, Helvetica, sans-serif;
-  background-color: #f7f7f7;
-}
-* {
-  box-sizing: border-box;
-}
-</style> -->
 <template>
   <router-view />
 </template>
 
 <script setup>
-// Tidak perlu data atau mounted
 </script>
 
 <style>
@@ -29,7 +11,19 @@ body {
   padding: 0;
   box-sizing: border-box;
 }
-body {
+
+html,
+body,
+#app {
   font-family: Arial, Helvetica, sans-serif;
+  background-color: #f7f7f7;
+  color: #2a2a2a;
+}
+
+button,
+input,
+select,
+textarea {
+  font-family: inherit;
 }
 </style>
