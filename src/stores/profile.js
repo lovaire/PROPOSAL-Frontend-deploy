@@ -85,6 +85,8 @@ export const useAuthStore = defineStore('auth', () => {
             };
             localStorage.setItem('userId', user.value.id);
             localStorage.setItem('role', user.value.role);
+
+            return role
         } catch (error) {
             const status = error.response.status;
 
