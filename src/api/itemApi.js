@@ -1,7 +1,7 @@
 import { createApi } from "@/api/base"; // Menggunakan base konfigurasi tim 
 
 // Sesuaikan dengan RequestMapping di Controller Backend-mu
-const api = createApi("http://localhost:8080/api/item"); 
+const api = createApi(`${import.meta.env.VITE_API_URL}/item`);
 
 export const getAllItems = () => {
     return api.get('/getAll');
