@@ -1,6 +1,7 @@
+// src/api/userApi.js
 import { createApi } from "@/api/base";
 
-const api = createApi(import.meta.env.VITE_API_URL);
+const api = createApi();
 
 export const getAllUsers = () => api.get('/users');
 export const updateUser = (id, data) => api.put(`/users/${id}`, data);
