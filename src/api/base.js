@@ -2,11 +2,11 @@
 import axios from "axios";
 import { authService } from "@/services/auth.service";
 
-/**
- * Creates an Axios instance with a pre-configured
- * Authorization interceptor.
- */
-export const createApi = (baseURL = import.meta.env.VITE_API_URL) => {
+const envApiUrl = import.meta.env.VITE_API_URL;
+
+const baseURL = envApiUrl || "https://proposal-backend-anbb.onrender.com/api";
+
+export const createApi = () => {
     const api = axios.create({
         baseURL,
         headers: {
@@ -14,7 +14,6 @@ export const createApi = (baseURL = import.meta.env.VITE_API_URL) => {
         },
     });
 
-    // Request interceptor to automatically add the Bearer token
     api.interceptors.request.use(
         (config) => {
             const token = authService.getToken();
