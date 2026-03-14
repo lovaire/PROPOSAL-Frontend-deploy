@@ -5,7 +5,7 @@ const envApiUrl = import.meta.env.VITE_API_URL;
 console.log('VITE_API_URL from env:', envApiUrl);
 
 const baseURL = envApiUrl || (process.env.NODE_ENV === 'production' 
-    ? 'https://proposal-backend-anbb.onrender.com/api'   // Hapus spasi di akhir!
+    ? 'https://proposal-backend-anbb.onrender.com/api'
     : 'http://localhost:8080/api');
 
 console.log('Using baseURL:', baseURL);

@@ -4,7 +4,7 @@ import { authService } from '@/services/auth.service'
 
 const api = axios.create({
   // ✅ Pakai import.meta.env untuk Vite + prefix VITE_
-  baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api',
+  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8080/api',
   timeout: 20000,
   headers: {
     'Content-Type': 'application/json'
