@@ -1,16 +1,22 @@
+// @/stores/profile.js
 import { ref } from "vue";
 import { defineStore } from "pinia";
 import { useRouter } from "vue-router";
 import profileApi from '@/api/profile.js';
-import { authService } from "@/services/auth.service";
+
+// ✅ Pastikan path ini sesuai: apakah authService export dari @/api/profile.js?
+// Kalau iya, import dari sana:
+import { authService } from '@/services/auth.service.js';
+// Kalau lo memang punya file terpisah @/services/auth.service.js, biarkan seperti aslinya.
+
 import { jwtDecode } from 'jwt-decode';
 
 export const useAuthStore = defineStore('auth', () => {
+    // ✅ Gunakan key 'token' yang sudah disamakan
     const token = ref(localStorage.getItem('token') || '');
     const user = ref(null);
     const router = useRouter();
 
-    // Fungsi untuk membersihkan role dari prefix "ROLE_"
     const cleanRole = (role) => {
         if (!role) return '';
         let cleaned = role.toLowerCase();
@@ -55,8 +61,7 @@ export const useAuthStore = defineStore('auth', () => {
         try {
             await profileApi.signup(payload);
         } catch (error) {
-            const status = error.response.status;
-
+            const status = error.response?.status;
             if (status === 400) {
                 throw new Error('Format Email tidak Valid!');
             } else {
@@ -68,6 +73,7 @@ export const useAuthStore = defineStore('auth', () => {
     const login = async (payload) => {
         try {
             const response = await profileApi.signin(payload);
+            // ✅ Lo udah benar pakai optional chaining untuk nested data
             const newToken = response.data.data?.token;
             if (!newToken) throw new Error('Token tidak ditemukan');
 
@@ -77,6 +83,7 @@ export const useAuthStore = defineStore('auth', () => {
             const decoded = jwtDecode(newToken);
             const rawRole = decoded.role || '';
             const role = cleanRole(rawRole);
+            
             user.value = {
                 id: decoded.userId || decoded.sub,
                 role: role,
@@ -85,9 +92,12 @@ export const useAuthStore = defineStore('auth', () => {
             };
             localStorage.setItem('userId', user.value.id);
             localStorage.setItem('role', user.value.role);
+            
+            // ✅ RETURN role agar bisa dipakai di Login.vue
+            return role;
+            
         } catch (error) {
-            const status = error.response.status;
-
+            const status = error.response?.status;
             if (status === 400) {
                 throw new Error('Format Email tidak Valid!');
             } else if (status === 401) {
