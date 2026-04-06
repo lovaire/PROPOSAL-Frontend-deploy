@@ -2,6 +2,7 @@
 node_modules
 /dist
 .env
+.env.Rifqi-Dev
 
 
 # local env files
