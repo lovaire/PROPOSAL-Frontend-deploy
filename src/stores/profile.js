@@ -6,7 +6,7 @@ import profileApi from '@/api/profile.js';
 
 // ✅ Pastikan path ini sesuai: apakah authService export dari @/api/profile.js?
 // Kalau iya, import dari sana:
-import { authService } from "@/api/profile.js"; 
+import { authService } from '@/services/auth.service.js';
 // Kalau lo memang punya file terpisah @/services/auth.service.js, biarkan seperti aslinya.
 
 import { jwtDecode } from 'jwt-decode';

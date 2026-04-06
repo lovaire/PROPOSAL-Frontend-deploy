@@ -1,7 +1,5 @@
 // src/api/itemApi.js
-import { createApi } from "@/api/base";
-
-const api = createApi();
+import api from './axios';
 
 export const getAllItems = () => api.get('/item/getAll');
 export const addItem = (data) => api.post('/item/add', data);

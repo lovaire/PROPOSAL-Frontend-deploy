@@ -1,7 +1,6 @@
 // src/api/supplierApi.js
-import { createApi } from "@/api/base";
+import api from './axios';
 
-const api = createApi();
 
 export const getAllSuppliers = () => api.get("/suppliers");
 export const createSupplier = (data) => api.post("/suppliers", data);

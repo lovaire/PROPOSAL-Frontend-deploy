@@ -1,7 +1,6 @@
 // src/api/transactionApi.js
-import { createApi } from "@/api/base";
+import api from './axios';
 
-const api = createApi();
 
 function buildParams(params = {}) {
     const out = {};
