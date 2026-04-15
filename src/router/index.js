@@ -41,6 +41,25 @@ const routes = [
         name: 'ItemMaster',
         component: () => import('@/views/ItemMaster.vue'),
         meta: { requiresAuth: true }
+    },
+
+    {
+        path: '/sales',
+        name: 'SalesList',
+        component: () => import('@/views/SalesList.vue'),
+        meta: { requiresAuth: true }
+        },
+        {
+        path: '/sales/:id',
+        name: 'SalesDetail',
+        component: () => import('@/views/SalesDetail.vue'),
+        meta: { requiresAuth: true }
+        },
+        {
+        path: '/sales/:id/edit',
+        name: 'SalesEdit',
+        component: () => import('@/views/SalesEdit.vue'),
+        meta: { requiresAuth: true }
     }
 ];
 
