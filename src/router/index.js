@@ -44,22 +44,16 @@ const routes = [
     },
 
     {
-        path: '/sales',
-        name: 'SalesList',
-        component: () => import('@/views/SalesList.vue'),
-        meta: { requiresAuth: true }
-        },
-        {
-        path: '/sales/:id',
-        name: 'SalesDetail',
-        component: () => import('@/views/SalesDetail.vue'),
-        meta: { requiresAuth: true }
-        },
-        {
-        path: '/sales/:id/edit',
-        name: 'SalesEdit',
-        component: () => import('@/views/SalesEdit.vue'),
-        meta: { requiresAuth: true }
+    path: '/sales',
+    name: 'Sales',
+    component: () => import('@/views/SalesView.vue'),
+    meta: { requiresAuth: true }
+    },
+    {
+    path: '/menu',
+    name: 'Menu',
+    component: () => import('@/views/MenuView.vue'),
+    meta: { requiresAuth: true }
     }
 ];
 
