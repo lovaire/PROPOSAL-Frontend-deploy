@@ -52,7 +52,7 @@
               <td>{{ distribution.category || '-' }}</td>
               <td>{{ distribution.department || '-' }}</td>
               <td class="actions-col">
-                <button class="row-btn update-btn" type="button">Update</button>
+                <button class="row-btn update-btn" type="button" @click="openEditModal(distribution)">Update</button>
                 <button class="row-btn delete-row-btn" type="button">Delete</button>
               </td>
             </tr>
@@ -63,7 +63,7 @@
 
     <div v-if="showFormModal" class="modal-overlay" @click.self="closeFormModal">
       <div class="modal-card form-modal">
-        <h3 class="modal-title">Add Distribusi Barang</h3>
+        <h3 class="modal-title">{{ formMode === 'add' ? 'Add Distribusi Barang' : 'Update Distribusi Barang' }}</h3>
 
         <form class="modal-form" @submit.prevent="submitForm">
           <div class="form-grid">
@@ -120,7 +120,7 @@
 
           <div class="modal-actions single-action">
             <button class="submit-btn" type="submit" :disabled="submitting">
-              {{ submitting ? 'Saving...' : 'Done' }}
+              {{ submitting ? 'Saving...' : formMode === 'add' ? 'Done' : 'Update' }}
             </button>
           </div>
         </form>
@@ -133,7 +133,7 @@
 import { computed, onMounted, ref, watch } from 'vue'
 import MainLayout from '../layouts/MainLayout.vue'
 import { getAllItems } from '../api/itemApi'
-import { createDistribution, getDistributions } from '../api/distributionApi'
+import { createDistribution, getDistributions, updateDistribution } from '../api/distributionApi'
 
 const loading = ref(false)
 const submitting = ref(false)
@@ -145,6 +145,8 @@ const items = ref([])
 const searchQuery = ref('')
 
 const showFormModal = ref(false)
+const formMode = ref('add')
+const editingDistributionId = ref(null)
 const selectedItem = ref(null)
 
 const form = ref({
@@ -212,6 +214,8 @@ function resetForm() {
     department: '',
     units: null
   }
+  formMode.value = 'add'
+  editingDistributionId.value = null
   selectedItem.value = null
   formErrors.value = {
     itemId: '',
@@ -241,6 +245,56 @@ function validateForm() {
 
 function openAddModal() {
   resetForm()
+  formMode.value = 'add'
+  showFormModal.value = true
+}
+
+function normalizeText(value) {
+  return String(value || '').trim().toLowerCase()
+}
+
+function resolveItemFromDistribution(distribution) {
+  const rowName = normalizeText(distribution?.itemName)
+  const rowCategory = normalizeText(distribution?.category)
+  if (!rowName) return null
+
+  const byName = items.value.filter((item) => normalizeText(item?.name) === rowName)
+  if (!byName.length) return null
+  if (byName.length === 1) return byName[0]
+
+  if (rowCategory) {
+    const byNameAndCategory = byName.find((item) => normalizeText(item?.category) === rowCategory)
+    if (byNameAndCategory) return byNameAndCategory
+  }
+
+  return null
+}
+
+function openEditModal(distribution) {
+  modalErrorMessage.value = ''
+  clearPageError()
+
+  const matchedItem = resolveItemFromDistribution(distribution)
+  const resolvedItemId = getItemId(matchedItem)
+  if (!matchedItem || !resolvedItemId) {
+    errorMessage.value =
+      'Data item untuk distribusi ini tidak dapat dipetakan. Pastikan item dengan nama dan kategori yang sesuai tersedia.'
+    return
+  }
+
+  formMode.value = 'edit'
+  editingDistributionId.value = distribution?.id ?? null
+  selectedItem.value = matchedItem
+  form.value = {
+    itemId: resolvedItemId,
+    department: distribution?.department || '',
+    units: Number(distribution?.units || 0)
+  }
+  formErrors.value = {
+    itemId: '',
+    department: '',
+    units: ''
+  }
   showFormModal.value = true
 }
 
@@ -290,7 +344,15 @@ async function submitForm() {
       units: Number(form.value.units)
     }
 
-    await createDistribution(payload)
+    if (formMode.value === 'add') {
+      await createDistribution(payload)
+    } else {
+      if (!editingDistributionId.value) {
+        modalErrorMessage.value = 'ID distribusi untuk update tidak ditemukan.'
+        return
+      }
+      await updateDistribution(editingDistributionId.value, payload)
+    }
     showFormModal.value = false
     resetForm()
     await fetchDistributions()

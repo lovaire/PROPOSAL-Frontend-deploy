@@ -13,3 +13,5 @@ export const getDistributions = (search = '') => {
 }
 
 export const createDistribution = (payload) => api.post('/distributions', payload)
+
+export const updateDistribution = (id, payload) => api.put(`/distributions/${id}`, payload)
