@@ -1,6 +1,5 @@
-import { createApi } from "@/api/base";
-
-const api = createApi('http://localhost:8082/api');
+// src/api/profile.js
+import api from './axios';
 
 class ProfileApi {
     async signup(userData) {

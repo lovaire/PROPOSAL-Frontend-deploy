@@ -16,8 +16,17 @@ const errorMessage = ref('');
 
 const handleLogin = async () => {
   try {
-    await authStore.login(formData.value);
-    router.push('/users');
+    const role = await authStore.login(formData.value);
+    console.log(role);
+
+    if (role === 'admin') {
+      router.push('/users');
+    } else if (role === 'inventory') {
+      router.push('/items');
+    } else {
+      // Semua role lain (finance, financial, manager, dll) ke halaman transaksi
+      router.push('/transactions');
+    }
   } catch (e) {
     errorMessage.value = e.message;
     console.error(e);
