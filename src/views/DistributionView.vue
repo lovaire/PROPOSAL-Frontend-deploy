@@ -53,7 +53,7 @@
               <td>{{ distribution.department || '-' }}</td>
               <td class="actions-col">
                 <button class="row-btn update-btn" type="button" @click="openEditModal(distribution)">Update</button>
-                <button class="row-btn delete-row-btn" type="button">Delete</button>
+                <button class="row-btn delete-row-btn" type="button" @click="openDeleteModal(distribution)">Delete</button>
               </td>
             </tr>
           </tbody>
@@ -126,6 +126,29 @@
         </form>
       </div>
     </div>
+
+    <div v-if="showDeleteModal" class="modal-overlay" @click.self="closeDeleteModal">
+      <div class="modal-card delete-modal">
+        <h3 class="modal-title delete-title">Confirm Delete</h3>
+
+        <div class="delete-copy">
+          You’re about to delete distribution data for
+          <strong>{{ distributionToDelete?.itemName || `ID ${distributionToDelete?.id}` }}</strong
+          >. Are you sure you want to continue?
+        </div>
+
+        <div v-if="deleteErrorMessage" class="modal-error">
+          {{ deleteErrorMessage }}
+        </div>
+
+        <div class="modal-actions delete-actions">
+          <button class="cancel-btn" type="button" :disabled="deleting" @click="closeDeleteModal">Cancel</button>
+          <button class="delete-btn" type="button" :disabled="deleting" @click="confirmDelete">
+            {{ deleting ? 'Deleting...' : 'Delete' }}
+          </button>
+        </div>
+      </div>
+    </div>
   </MainLayout>
 </template>
 
@@ -133,7 +156,7 @@
 import { computed, onMounted, ref, watch } from 'vue'
 import MainLayout from '../layouts/MainLayout.vue'
 import { getAllItems } from '../api/itemApi'
-import { createDistribution, getDistributions, updateDistribution } from '../api/distributionApi'
+import { createDistribution, deleteDistribution, getDistributions, updateDistribution } from '../api/distributionApi'
 
 const loading = ref(false)
 const submitting = ref(false)
@@ -148,6 +171,10 @@ const showFormModal = ref(false)
 const formMode = ref('add')
 const editingDistributionId = ref(null)
 const selectedItem = ref(null)
+const showDeleteModal = ref(false)
+const distributionToDelete = ref(null)
+const deleting = ref(false)
+const deleteErrorMessage = ref('')
 
 const form = ref({
   itemId: '',
@@ -223,6 +250,16 @@ function resetForm() {
     units: ''
   }
   modalErrorMessage.value = ''
+}
+
+function getDeleteErrorMessage(err) {
+  const status = err?.response?.status
+  const msg = err?.response?.data?.message
+  if (msg) return msg
+  if (status === 404) return 'Data distribusi tidak ditemukan atau sudah dihapus.'
+  if (status === 403) return 'Akses ditolak. Anda tidak memiliki izin untuk menghapus data ini.'
+  if (status >= 500) return 'Terjadi kesalahan server saat menghapus data. Coba lagi nanti.'
+  return 'Gagal menghapus data distribusi. Coba lagi.'
 }
 
 function validateForm() {
@@ -304,6 +341,19 @@ function closeFormModal() {
   resetForm()
 }
 
+function openDeleteModal(distribution) {
+  distributionToDelete.value = distribution
+  deleteErrorMessage.value = ''
+  showDeleteModal.value = true
+}
+
+function closeDeleteModal() {
+  if (deleting.value) return
+  showDeleteModal.value = false
+  distributionToDelete.value = null
+  deleteErrorMessage.value = ''
+}
+
 async function fetchItems() {
   try {
     const res = await getAllItems()
@@ -360,6 +410,25 @@ async function submitForm() {
     modalErrorMessage.value = getFriendlyError(err)
   } finally {
     submitting.value = false
+  }
+}
+
+async function confirmDelete() {
+  deleteErrorMessage.value = ''
+  if (!distributionToDelete.value?.id) {
+    deleteErrorMessage.value = 'ID distribusi tidak ditemukan.'
+    return
+  }
+
+  deleting.value = true
+  try {
+    await deleteDistribution(distributionToDelete.value.id)
+    closeDeleteModal()
+    await fetchDistributions()
+  } catch (err) {
+    deleteErrorMessage.value = getDeleteErrorMessage(err)
+  } finally {
+    deleting.value = false
   }
 }
 
@@ -579,11 +648,20 @@ onMounted(async () => {
   padding: 42px 44px 30px;
 }
 
+.delete-modal {
+  max-width: 480px;
+  padding: 42px 44px 36px;
+}
+
 .modal-title {
   margin: 0 0 28px;
   font-size: 24px;
   font-weight: 800;
   color: #171717;
+}
+
+.delete-title {
+  margin-bottom: 14px;
 }
 
 .modal-form {
@@ -684,6 +762,46 @@ onMounted(async () => {
   cursor: not-allowed;
 }
 
+.delete-copy {
+  font-size: 16px;
+  color: #262626;
+  line-height: 1.35;
+  max-width: 360px;
+}
+
+.delete-actions {
+  margin-top: 28px;
+}
+
+.cancel-btn,
+.delete-btn {
+  height: 42px;
+  min-width: 98px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.cancel-btn {
+  border: 1px solid #ece6e1;
+  background: #ffffff;
+  color: #4e8a67;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+}
+
+.delete-btn {
+  border: 2px solid #4e8a67;
+  background: #ffffff;
+  color: #4e8a67;
+}
+
+.cancel-btn:disabled,
+.delete-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 @media (max-width: 860px) {
   .toolbar {
     flex-direction: column;
@@ -707,6 +825,11 @@ onMounted(async () => {
   }
 
   .form-modal {
+    padding: 28px 24px 24px;
+    border-radius: 26px;
+  }
+
+  .delete-modal {
     padding: 28px 24px 24px;
     border-radius: 26px;
   }
