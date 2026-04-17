@@ -27,6 +27,12 @@ const routes = [
         meta: { requiresAuth: true }
     },
     {
+        path: '/distributions',
+        name: 'distributions',
+        component: () => import('@/views/DistributionView.vue'),
+        meta: { requiresAuth: true }
+    },
+    {
         path: '/',
         redirect: '/users'
     },

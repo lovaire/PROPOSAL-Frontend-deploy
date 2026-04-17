@@ -21,6 +21,10 @@
       <router-link to="/transactions" class="menu-item" active-class="active">
         Transactions
       </router-link>
+
+      <router-link to="/distributions" class="menu-item" active-class="active">
+        Distribusi Barang
+      </router-link>
     </nav>
 
     <div class="bottom-menu">
