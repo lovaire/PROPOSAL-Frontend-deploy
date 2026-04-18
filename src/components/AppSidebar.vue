@@ -21,11 +21,15 @@
       <router-link to="/transactions" class="menu-item" active-class="active">
         Transactions
       </router-link>
+      <router-link to="/invoice-supplier" class="menu-item" active-class="active">
+        Invoice Supplier
+      </router-link>
     </nav>
 
     <div class="bottom-menu">
       <div class="menu-item">Account</div>
       <div class="menu-item logout">Logout</div>
+      <div class="menu-item logout">Supplier</div>
     </div>
   </aside>
 </template>

@@ -41,6 +41,11 @@ const routes = [
         name: 'ItemMaster',
         component: () => import('@/views/ItemMaster.vue'),
         meta: { requiresAuth: true }
+    },
+    {
+        path: '/invoice-supplier',
+        name: 'InvoiceSupplier',
+        component: () => import('../views/InvoiceSupplier.vue')
     }
 ];
 
@@ -53,6 +58,7 @@ const router = createRouter({
 router.beforeEach((to) => {
     const authStore = useAuthStore();
     const isLoggedIn = !!authStore.token;
+    // const userRole = authStore.user?.role?.toLowerCase(); 
 
     if (to.meta.requiresGuest) {
         if (isLoggedIn) {
