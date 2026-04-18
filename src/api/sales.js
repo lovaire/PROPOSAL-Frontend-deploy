@@ -23,6 +23,7 @@ export const createInvoice = (data) => api.post('/invoices', data);
 
 // Products
 export const getAllProducts = () => api.get('/sales/product?all=true');
+export const getAllActiveProducts = () => api.get('/sales/product')
 export const createProduct = (data) => api.post('/sales/product/add', data);
 export const updateProduct = (data) => api.put('/sales/product/update', data);
 export const updateProductStatus = (id) => api.put(`/sales/product/${id}`);

@@ -25,6 +25,11 @@
       <router-link to="/sales" class="menu-item" active-class="active">
         Sales
       </router-link>
+
+      <router-link v-if="['/sales', '/menu'].some(path => route.path.includes(path))" class="submenu-item" to="/menu" active-class="active">
+        Menu
+      </router-link>
+      
       <router-link to="/invoice-supplier" class="menu-item" active-class="active">
         Invoice Supplier
       </router-link>
@@ -32,13 +37,19 @@
 
     <div class="bottom-menu">
       <div class="menu-item">Account</div>
-      <div class="menu-item logout">Logout</div>
+      <div class="menu-item logout" @click="logout">Logout</div>
     </div>
   </aside>
 </template>
 
 <script setup>
 import logoUrl from '../assets/logo.svg'
+import {useAuthStore} from "@/stores/profile";
+import {useRoute} from "vue-router";
+
+const authStore = useAuthStore()
+const logout = () => authStore.logout()
+const route = useRoute()
 </script>
 
 <style scoped>
@@ -99,6 +110,21 @@ import logoUrl from '../assets/logo.svg'
   background-color: #eef7f2;
   color: #2d7d5f;
   font-weight: 600;
+}
+
+.submenu-item {
+  text-decoration: none;
+  color: #333;
+  padding: 12px 14px;
+  margin-left: 20px;
+  border-radius: 10px;
+  font-size: 15px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.submenu-item:hover {
+  background-color: #f2f2f2;
 }
 
 .bottom-menu {

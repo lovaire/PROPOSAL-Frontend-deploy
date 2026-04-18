@@ -46,25 +46,42 @@
 
     <!-- Modal Tambah/Edit -->
     <div v-if="showModal" class="modal-overlay">
-      <div class="modal-box">
+      <form @submit.prevent="submitForm" class="modal-box">
         <h2>{{ isEdit ? 'Edit Menu' : 'Tambah Menu' }}</h2>
+
         <label>Nama</label>
-        <input type="text" v-model="form.name" />
+        <input
+            type="text"
+            v-model="form.name"
+            placeholder="Masukkan nama menu"
+            required
+        />
+
         <label>Harga</label>
-        <input type="number" v-model="form.price" />
+        <input
+            type="number"
+            v-model="form.price"
+            placeholder="0"
+            min="1"
+            required
+        />
+
         <label>Kategori</label>
-        <select v-model="form.category">
+        <select v-model="form.category" required>
+          <option value="" disabled>Pilih Kategori</option>
           <option value="MAIN_COURSE">MAIN_COURSE</option>
           <option value="APPETIZER">APPETIZER</option>
           <option value="DESSERT">DESSERT</option>
           <option value="BEVERAGE">BEVERAGE</option>
           <option value="SNACK">SNACK</option>
         </select>
+
         <div class="modal-actions">
-          <button class="cancel-btn" @click="closeModal">Batal</button>
-          <button class="confirm-delete-btn" @click="submitForm">Simpan</button>
+          <button type="button" class="cancel-btn" @click="closeModal">Batal</button>
+
+          <button type="submit" class="confirm-delete-btn">Simpan</button>
         </div>
-      </div>
+      </form>
     </div>
   </MainLayout>
 </template>

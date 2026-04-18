@@ -8,7 +8,6 @@
         </div>
         <div class="user-menu" v-if="authStore.user">
           <span class="user-text">{{ authStore.user.username }} ({{ authStore.user.role }})</span>
-          <button type="button" class="logout-btn" @click="logout">Logout</button>
         </div>
       </header>
 
@@ -22,7 +21,6 @@ import AppSidebar from '../components/AppSidebar.vue'
 import { useAuthStore } from '@/stores/profile'
 
 const authStore = useAuthStore()
-const logout = () => authStore.logout()
 </script>
 
 <style scoped>

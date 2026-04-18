@@ -81,36 +81,48 @@
 
     <!-- Modal Add / Edit -->
     <div v-if="showFormModal" class="modal-overlay">
-      <div class="modal-box">
+      <form @submit.prevent="submitForm" class="modal-box">
         <h2>{{ isEdit ? 'Edit Penjualan' : 'Tambah Penjualan' }}</h2>
+        <p v-if="errorMessage" class="error">{{ errorMessage }}</p>
+
         <label>Tanggal</label>
-        <input type="datetime-local" v-model="form.tanggal" />
+        <input type="datetime-local" v-model="form.tanggal" required />
+
         <label>Customer</label>
-        <input type="text" v-model="form.customer" />
+        <input type="text" v-model="form.customer" required />
+
         <label>Catatan</label>
         <textarea v-model="form.catatan"></textarea>
+
         <label>Metode Pembayaran</label>
-        <select v-model="form.paymentMethod">
-          <option value="cash">Cash</option>
-          <option value="transfer">Transfer</option>
-          <option value="qris">QRIS</option>
+        <select v-model="form.paymentMethod" required>
+          <option value="" disabled>Pilih Metode</option>
+          <option value="CASH">Cash</option>
+          <option value="DEBIT">Debit</option>
+          <option value="CREDIT">Credit</option>
+          <option value="QRIS">QRIS</option>
+          <option value="TRANSFER">Transfer</option>
         </select>
 
-        <h3>Item Penjualan</h3>
+        <label>Item Penjualan</label>
         <div v-for="(item, idx) in form.items" :key="idx" class="item-row">
-          <select v-model="item.productId">
-            <option v-for="prod in products" :key="prod.id" :value="prod.id">{{ prod.name }}</option>
+          <select v-model="item.productId" required>
+            <option value="" disabled>Pilih Produk</option>
+            <option v-for="prod in products" :key="prod.id" :value="prod.id">
+              {{ prod.name }}
+            </option>
           </select>
-          <input type="number" v-model="item.quantity" placeholder="Qty" />
-          <button @click="removeItem(idx)" class="delete-btn">Hapus</button>
+          <input type="number" v-model="item.quantity" placeholder="Qty" min="1" required />
+          <button type="button" @click="removeItem(idx)" class="delete-btn">Hapus</button>
         </div>
-        <button @click="addItem" class="update-btn">+ Tambah Item</button>
+
+        <button type="button" @click="addItem" class="update-btn">+ Tambah Item</button>
 
         <div class="modal-actions">
-          <button class="cancel-btn" @click="closeFormModal">Batal</button>
-          <button class="confirm-delete-btn" @click="submitForm">Simpan</button>
+          <button type="button" class="cancel-btn" @click="closeFormModal">Batal</button>
+          <button type="submit" class="confirm-delete-btn">Simpan</button>
         </div>
-      </div>
+      </form>
     </div>
 
     <!-- Modal Invoice -->
@@ -121,9 +133,11 @@
         <input type="datetime-local" v-model="invoiceData.invoiceDate" />
         <label>Metode Pembayaran</label>
         <select v-model="invoiceData.paymentMethod">
-          <option value="cash">Cash</option>
-          <option value="transfer">Transfer</option>
-          <option value="qris">QRIS</option>
+          <option value="CASH">Cash</option>
+          <option value="DEBIT">Debit</option>
+          <option value="CREDIT">Credit</option>
+          <option value="QRIS">QRIS</option>
+          <option value="TRANSFER">Transfer</option>
         </select>
         <div class="modal-actions">
           <button class="cancel-btn" @click="closeInvoiceModal">Batal</button>
@@ -137,12 +151,14 @@
 <script setup>
 import axios from 'axios';
 import { ref, onMounted } from 'vue';
-import { getAllSales, createSales, updateSales, createInvoice, getAllProducts } from '@/api/sales';
+import {getAllSales, createSales, updateSales, createInvoice, getAllActiveProducts} from '@/api/sales';
 import MainLayout from '@/layouts/MainLayout.vue';
 
 const sales = ref([]);
 const products = ref([]);
 const loading = ref(true);
+
+const errorMessage = ref('');
 
 const showDetailModal = ref(false);
 const showFormModal = ref(false);
@@ -167,7 +183,7 @@ const fetchData = async () => {
   try {
     const [salesRes, productsRes] = await Promise.all([
       getAllSales(),
-      getAllProducts()
+      getAllActiveProducts()
     ]);
     sales.value = salesRes.data.data;
     products.value = productsRes.data.data;
@@ -239,6 +255,7 @@ const submitForm = async () => {
     await fetchData();
   } catch (error) {
     console.error(error);
+    errorMessage.value = error.message;
     alert('Gagal menyimpan penjualan');
   }
 };
