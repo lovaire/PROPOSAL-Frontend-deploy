@@ -21,6 +21,17 @@
       <router-link to="/transactions" class="menu-item" active-class="active">
         Transactions
       </router-link>
+
+      <router-link to="/tax-recap" class="menu-item">
+        <span class="icon">📊</span>
+        <span class="text">Tax Recap</span>
+      </router-link>
+
+      <router-link to="/tax-report" class="menu-item">
+        <span class="icon">📑</span>
+        <span class="text">Tax Report</span>
+      </router-link>
+      
     </nav>
 
     <div class="bottom-menu">

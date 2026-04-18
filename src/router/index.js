@@ -41,6 +41,18 @@ const routes = [
         name: 'ItemMaster',
         component: () => import('@/views/ItemMaster.vue'),
         meta: { requiresAuth: true }
+    },
+    {
+        path: '/tax-recap',
+        name: 'tax-recap',
+        component: () => import('@/views/TaxRecapView.vue'),
+        meta: { requiresAuth: true }
+    },
+    {
+        path: '/tax-report',
+        name: 'tax-report',
+        component: () => import('@/views/TaxReportView.vue'),
+        meta: { requiresAuth: true }
     }
 ];
 
