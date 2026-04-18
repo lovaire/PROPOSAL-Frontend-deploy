@@ -1,8 +1,8 @@
 <template>
   <MainLayout>
     <div class="page-header">
-      <h2>Master Barang</h2>
-      <button class="create-btn" @click="openAddModal()">+ Tambah Barang</button>
+      <h2>Master Items</h2>
+      <button class="create-btn" @click="openAddModal()">+ Add Item</button>
     </div>
 
     <div class="table-card">
@@ -10,17 +10,17 @@
         <thead>
           <tr>
             <th>ID</th>
-            <th>Nama Barang</th>
-            <th>Kategori</th>
-            <th>Unit</th>
+            <th>Item Name</th>
+            <th>Category</th>
+            <th>Units</th>
             <th>Safety Stock</th>
             <th>Status</th>
-            <th class="action-col">Aksi</th>
+            <th class="action-col">Action</th>
           </tr>
         </thead>
         <tbody>
           <tr v-if="loading">
-            <td colspan="7" class="state-text">Memuat data dari server...</td>
+            <td colspan="7" class="state-text">Loading data from server...</td>
           </tr>
 
           <tr v-else v-for="item in items" :key="item.idItem">
@@ -43,60 +43,72 @@
           </tr>
 
           <tr v-if="!loading && items.length === 0">
-            <td colspan="7" class="state-text">Tidak ada data barang ditemukan.</td>
+            <td colspan="7" class="state-text">No items found in the database.</td>
           </tr>
         </tbody>
       </table>
     </div>
 
     <div v-if="showModal" class="modal-overlay">
-      <div class="modal-box">
-        <h2>{{ isEdit ? 'Update Data Barang' : 'Tambah Barang Baru' }}</h2>
+      <div class="modal-card">
+        <h2>{{ isEdit ? 'Update Item' : 'Add New Item' }}</h2>
         
-        <div class="form-group">
-          <label>Nama Produk</label>
-          <input v-model="currentItem.name" type="text" placeholder="Masukkan nama barang" />
-        </div>
+        <form @submit.prevent="handleSubmit">
+          <div class="form-group">
+            <label>Product ID</label>
+            <input :value="isEdit ? currentItem.idItem : 'XXXXXX'" type="text" disabled />
+          </div>
 
-        <div class="form-group">
-          <label>Kategori</label>
-          <select v-model="currentItem.category">
-            <option value="" disabled>Pilih Kategori</option>
-            <option value="Amenities">Amenities</option>
-            <option value="Konsumsi">Konsumsi</option>
-            <option value="Peralatan">Peralatan</option>
-          </select>
-        </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Item Name</label>
+              <input v-model="currentItem.name" type="text" placeholder="Enter item name" required />
+            </div>
+            <div class="form-group">
+              <label>Category</label>
+              <select v-model="currentItem.category" required>
+                <option value="" disabled>Select Category</option>
+                <option value="Amenities">Amenities</option>
+                <option value="Konsumsi">Konsumsi</option>
+                <option value="Peralatan">Peralatan</option>
+                <option value="Lain-lain">Lain-lain</option>
+              </select>
+            </div>
+          </div>
 
-        <div class="form-group">
-          <label>Safety Stock</label>
-          <input v-model="currentItem.safetyStock" type="number" />
-        </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Safety Stock</label>
+              <input v-model="currentItem.safetyStock" type="number" required min="0" />
+            </div>
+            <div class="form-group">
+              <label>Units</label>
+              <select v-model="currentItem.unit" required>
+                <option value="" disabled>Select Unit</option>
+                <option value="Pcs">Pcs</option>
+                <option value="Box">Box</option>
+                <option value="Galon">Galon</option>
+                <option value="Jerigen">Jerigen</option>
+                <option value="Rim">Rim</option>
+              </select>
+            </div>
+          </div>
 
-        <div class="form-group">
-          <label>Unit</label>
-          <select v-model="currentItem.unit">
-            <option value="" disabled>Pilih Unit</option>
-            <option value="Pcs">Pcs</option>
-            <option value="Box">Box</option>
-            <option value="Galon">Galon</option>
-          </select>
-        </div>
+          <div class="form-group" v-if="isEdit">
+            <label>Status</label>
+            <select v-model="currentItem.isActive">
+              <option :value="true">Active</option>
+              <option :value="false">Inactive</option>
+            </select>
+          </div>
 
-        <div class="form-group" v-if="isEdit">
-          <label>Status</label>
-          <select v-model="currentItem.isActive">
-            <option :value="true">Active</option>
-            <option :value="false">Inactive</option>
-          </select>
-        </div>
-
-        <div class="modal-actions">
-          <button class="cancel-btn" @click="closeModal">Cancel</button>
-          <button class="done-btn" @click="handleSubmit" :disabled="submitting">
-            {{ submitting ? "Processing..." : (isEdit ? "Update Barang" : "Simpan Barang") }}
-          </button>
-        </div>
+          <div class="modal-actions">
+            <button type="button" class="cancel-btn" @click="closeModal">Cancel</button>
+            <button type="submit" class="done-btn" :disabled="submitting">
+              {{ submitting ? "Processing..." : (isEdit ? "Update Item" : "Save Item") }}
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   </MainLayout>
@@ -104,10 +116,10 @@
 
 <script setup>
 import { ref, onMounted } from "vue";
-import MainLayout from "../layouts/MainLayout.vue"; // Penting: Sidebar dipanggil di sini 
+import MainLayout from "../layouts/MainLayout.vue";
 import { getAllItems, addItem, updateItem, deleteItem } from "@/api/itemApi";
 
-// State Management: Mengikuti pola ref milik tim 
+// State Management
 const items = ref([]);
 const loading = ref(false);
 const submitting = ref(false);
@@ -123,21 +135,18 @@ const currentItem = ref({
   isActive: true
 });
 
-// Fungsi Fetch Data
 const fetchItems = async () => {
   loading.value = true;
   try {
     const res = await getAllItems();
-    // Menyesuaikan jika backend membungkus data dalam field 'data'
     items.value = res.data.data || res.data || [];
   } catch (err) {
-    console.error("Gagal mengambil data barang:", err);
+    console.error("Fetch Error:", err);
   } finally {
     loading.value = false;
   }
 };
 
-// Logika Modal
 const openAddModal = () => {
   isEdit.value = false;
   currentItem.value = { name: "", category: "", safetyStock: 0, unit: "", isActive: true };
@@ -151,42 +160,41 @@ const openEditModal = (item) => {
   showModal.value = true;
 };
 
-const closeModal = () => {
-  showModal.value = false;
-};
+const closeModal = () => { showModal.value = false; };
 
-// CRUD Handler
 const handleSubmit = async () => {
   if (!currentItem.value.name || !currentItem.value.category) {
-    return alert("Nama dan Kategori wajib diisi!");
+    return alert("Please fill in the Item Name and Category!");
   }
 
   submitting.value = true;
   try {
     if (isEdit.value) {
       await updateItem(currentItem.value);
-      alert("Barang berhasil diperbarui!");
+      alert("Item updated successfully!");
     } else {
       await addItem(currentItem.value);
-      alert("Barang berhasil disimpan!");
+      alert("Item saved successfully!");
     }
     closeModal();
     await fetchItems();
   } catch (err) {
-    alert("Terjadi kesalahan pada server");
+    const errorMsg = err.response?.data?.message || "Something went wrong. Please check your connection.";
+    alert(errorMsg);
   } finally {
     submitting.value = false;
   }
 };
 
 const handleDelete = async (id, nama) => {
-  if (confirm(`Apakah Anda yakin ingin menghapus ${nama}?`)) {
+  if (confirm(`Are you sure you want to delete ${nama}?`)) {
     try {
       await deleteItem(id);
-      alert("Barang berhasil dihapus!");
+      alert("Item deleted successfully!");
       await fetchItems();
     } catch (err) {
-      alert("Gagal menghapus data.");
+      const errorMsg = err.response?.data?.message || "Failed to delete item.";
+      alert(errorMsg);
     }
   }
 };
@@ -195,7 +203,7 @@ onMounted(fetchItems);
 </script>
 
 <style scoped>
-/* Style disamakan persis dengan ListSupplier.vue  [cite: 321-330] */
+/* Style Layout Luar (List) */
 .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
 .create-btn { background-color: #dff0e7; color: #3a6f5c; border: none; border-radius: 12px; padding: 14px 22px; font-weight: 600; cursor: pointer; }
 
@@ -213,11 +221,14 @@ th, td { padding: 18px 20px; text-align: left; border-bottom: 1px solid #f3e5e1;
 .delete-btn { background: #d91f11; color: white; border: none; padding: 8px 15px; border-radius: 8px; cursor: pointer; }
 .state-text { text-align: center; padding: 30px; color: #888; }
 
+/* Style Modal (Pop-up) */
 .modal-overlay { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.45); display: flex; justify-content: center; align-items: center; z-index: 999; }
-.modal-box { width: 420px; background: white; border-radius: 32px; padding: 36px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
-.form-group { margin-bottom: 15px; }
+.modal-card { background: white; padding: 30px; border-radius: 10px; width: 500px; box-shadow: 0 4px 20px rgba(0,0,0,0.2); }
+.modal-card h2 { margin-top: 0; margin-bottom: 20px; color: #d32f2f; }
+.form-row { display: flex; gap: 15px; }
+.form-group { flex: 1; margin-bottom: 15px; display: flex; flex-direction: column; text-align: left; }
 .form-group label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 5px; }
-.form-group input, .form-group select { width: 100%; padding: 12px; border: 1px solid #e8e8e8; border-radius: 10px; }
+.form-group input, .form-group select { width: 100%; padding: 10px; border: 1px solid #e8e8e8; border-radius: 10px; }
 
 .modal-actions { display: flex; justify-content: flex-end; gap: 12px; margin-top: 25px; }
 .done-btn { background: #2e7d32; color: white; border: none; padding: 12px 25px; border-radius: 10px; cursor: pointer; font-weight: 600; }
