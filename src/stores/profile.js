@@ -1,16 +1,31 @@
+// @/stores/profile.js
 import { ref } from "vue";
 import { defineStore } from "pinia";
 import { useRouter } from "vue-router";
 import profileApi from '@/api/profile.js';
-import { authService } from "@/services/auth.service";
+
+// ✅ Pastikan path ini sesuai: apakah authService export dari @/api/profile.js?
+// Kalau iya, import dari sana:
+import { authService } from '@/services/auth.service.js';
+// Kalau lo memang punya file terpisah @/services/auth.service.js, biarkan seperti aslinya.
+
 import { jwtDecode } from 'jwt-decode';
 
 export const useAuthStore = defineStore('auth', () => {
+    // ✅ Gunakan key 'token' yang sudah disamakan
     const token = ref(localStorage.getItem('token') || '');
     const user = ref(null);
     const router = useRouter();
 
-    // 1. Definisikan logout duluan
+    const cleanRole = (role) => {
+        if (!role) return '';
+        let cleaned = role.toLowerCase();
+        if (cleaned.startsWith('role_')) {
+            cleaned = cleaned.substring(5);
+        }
+        return cleaned;
+    };
+
     const logout = () => {
         authService.removeToken();
         token.value = '';
@@ -20,24 +35,23 @@ export const useAuthStore = defineStore('auth', () => {
         router.push('/login');
     };
 
-    // 2. Inisialisasi user dari token jika ada
     const initUserFromToken = () => {
         if (token.value) {
             try {
                 const decoded = jwtDecode(token.value);
-                // Sesuaikan dengan claims dari backend
+                const rawRole = decoded.role || '';
+                const role = cleanRole(rawRole);
                 user.value = {
                     id: decoded.userId || decoded.sub,
-                    role: (decoded.role || '').toLowerCase(),
+                    role: role,
                     username: decoded.username || decoded.sub,
                     email: decoded.email || ''
                 };
-                // Simpan juga di localStorage untuk komponen lain
                 localStorage.setItem('userId', user.value.id);
                 localStorage.setItem('role', user.value.role);
             } catch (e) {
                 console.error('Token tidak valid', e);
-                logout(); // sekarang logout sudah ada
+                logout();
             }
         }
     };
@@ -47,8 +61,7 @@ export const useAuthStore = defineStore('auth', () => {
         try {
             await profileApi.signup(payload);
         } catch (error) {
-            const status = error.response.status;
-
+            const status = error.response?.status;
             if (status === 400) {
                 throw new Error('Format Email tidak Valid!');
             } else {
@@ -60,6 +73,7 @@ export const useAuthStore = defineStore('auth', () => {
     const login = async (payload) => {
         try {
             const response = await profileApi.signin(payload);
+            // ✅ Lo udah benar pakai optional chaining untuk nested data
             const newToken = response.data.data?.token;
             if (!newToken) throw new Error('Token tidak ditemukan');
 
@@ -67,17 +81,23 @@ export const useAuthStore = defineStore('auth', () => {
             token.value = newToken;
 
             const decoded = jwtDecode(newToken);
+            const rawRole = decoded.role || '';
+            const role = cleanRole(rawRole);
+            
             user.value = {
                 id: decoded.userId || decoded.sub,
-                role: (decoded.role || '').toLowerCase(),
+                role: role,
                 username: decoded.username || decoded.sub,
                 email: decoded.email || ''
             };
             localStorage.setItem('userId', user.value.id);
             localStorage.setItem('role', user.value.role);
+            
+            // ✅ RETURN role agar bisa dipakai di Login.vue
+            return role;
+            
         } catch (error) {
-            const status = error.response.status;
-
+            const status = error.response?.status;
             if (status === 400) {
                 throw new Error('Format Email tidak Valid!');
             } else if (status === 401) {
