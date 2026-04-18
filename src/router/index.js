@@ -41,6 +41,11 @@ const routes = [
         name: 'ItemMaster',
         component: () => import('@/views/ItemMaster.vue'),
         meta: { requiresAuth: true }
+    },
+    {
+        path: '/invoice-supplier',
+        name: 'InvoiceSupplier',
+        component: () => import('../views/InvoiceSupplier.vue')
     }
 ];
 

@@ -21,6 +21,9 @@
       <router-link to="/transactions" class="menu-item" active-class="active">
         Transactions
       </router-link>
+      <router-link to="/invoice-supplier" class="menu-item" active-class="active">
+        Invoice Supplier
+      </router-link>
     </nav>
 
     <div class="bottom-menu">
