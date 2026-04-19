@@ -16,10 +16,6 @@ api.interceptors.request.use(
     // ✅ Daftar endpoint publik yang tidak butuh token
     const publicEndpoints = [
       '/login',
-      '/auth/login', 
-      '/register',
-      '/refresh-token',
-      '/public'
     ]
 
     // ✅ Cek apakah URL request termasuk endpoint publik
