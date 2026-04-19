@@ -22,9 +22,20 @@
         Transactions
       </router-link>
 
+      <router-link to="/tax-recap" class="menu-item">
+        <span class="icon">📊</span>
+        <span class="text">Tax Recap</span>
+      </router-link>
+
+      <router-link to="/tax-report" class="menu-item">
+        <span class="icon">📑</span>
+        <span class="text">Tax Report</span>
+      </router-link>
+      
       <router-link to="/sales" class="menu-item" active-class="active">
         Sales
       </router-link>
+      
       <router-link to="/invoice-supplier" class="menu-item" active-class="active">
         Invoice Supplier
       </router-link>
