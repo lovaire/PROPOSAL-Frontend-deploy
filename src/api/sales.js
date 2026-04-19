@@ -15,6 +15,7 @@ api.interceptors.request.use(config => {
 // Sales
 export const getAllSales = () => api.get('/sales');
 export const getSalesDetail = (id) => api.get(`/sales/${id}`);
+export const getPerfSales = (first, last) => api.get('/sales/perf', { params: { first, last } })
 export const createSales = (data) => api.post('/sales/add', data);
 export const updateSales = (id, data) => api.put(`/sales/${id}`, data);
 

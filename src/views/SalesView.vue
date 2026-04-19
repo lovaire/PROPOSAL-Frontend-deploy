@@ -43,6 +43,10 @@
       </table>
     </div>
 
+    <div class="chart-wrapper">
+      <RevenueChart :fetch-fn="chartFetcher" />
+    </div>
+
     <!-- Modal Detail -->
     <div v-if="showDetailModal" class="modal-overlay">
       <div class="modal-box">
@@ -151,8 +155,9 @@
 <script setup>
 import axios from 'axios';
 import { ref, onMounted } from 'vue';
-import {getAllSales, createSales, updateSales, createInvoice, getAllActiveProducts} from '@/api/sales';
+import {getAllSales, createSales, updateSales, createInvoice, getAllActiveProducts, getPerfSales} from '@/api/sales';
 import MainLayout from '@/layouts/MainLayout.vue';
+import RevenueChart from '@/components/RevenueChart.vue';                      // [ADDED]
 
 const sales = ref([]);
 const products = ref([]);
@@ -177,6 +182,17 @@ const invoiceData = ref({
   invoiceDate: new Date().toISOString().slice(0, 16),
   paymentMethod: 'cash'
 });
+
+const chartFetcher = async (firstDate, lastDate) => {
+  const toLocalDateTime = (date) => {
+    const yyyy = date.getFullYear()
+    const mm   = String(date.getMonth() + 1).padStart(2, '0')
+    const dd   = String(date.getDate()).padStart(2, '0')
+    return `${yyyy}-${mm}-${dd}T00:00:00`
+  }
+  const res = await getPerfSales(toLocalDateTime(firstDate), toLocalDateTime(lastDate))
+  return res.data.data
+}
 
 const fetchData = async () => {
   loading.value = true;
@@ -392,6 +408,10 @@ td {
   text-align: center;
   color: #777;
   padding: 30px;
+}
+/* [ADDED] spacing between table and chart */
+.chart-wrapper {
+  margin-top: 32px;
 }
 .modal-overlay {
   position: fixed;

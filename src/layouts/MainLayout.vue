@@ -30,9 +30,21 @@ const authStore = useAuthStore()
   background-color: #f7f7f7;
 }
 
+.layout :deep(.sidebar) {        /* replace .sidebar with whatever class AppSidebar's root div has */
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  z-index: 100;
+  overflow-y: auto;
+}
+
 .content {
+  margin-left: 240px;
+  margin-right: 20px;
   flex: 1;
-  padding: 32px;
+  min-height: 100vh;
+  overflow-y: auto;
 }
 
 .topbar {
