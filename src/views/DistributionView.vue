@@ -23,6 +23,7 @@
           <button class="toolbar-btn secondary" type="button" :disabled="loading" @click="applySearch">
             {{ loading ? 'Loading...' : 'Search' }}
           </button>
+          <button class="toolbar-btn ghost" type="button" :disabled="loading" @click="resetSearch">Reset</button>
           <button class="toolbar-btn primary" type="button" @click="openAddModal">+ Add Distribusi</button>
         </div>
       </div>
@@ -364,11 +365,11 @@ async function fetchItems() {
   }
 }
 
-async function fetchDistributions() {
+async function fetchDistributions(search = searchQuery.value) {
   clearPageError()
   loading.value = true
   try {
-    const res = await getDistributions(searchQuery.value)
+    const res = await getDistributions(search)
     distributions.value = res?.data?.data || res?.data || []
   } catch (err) {
     distributions.value = []
@@ -379,7 +380,13 @@ async function fetchDistributions() {
 }
 
 function applySearch() {
-  fetchDistributions()
+  fetchDistributions(searchQuery.value)
+}
+
+function resetSearch() {
+  searchQuery.value = ''
+  clearPageError()
+  fetchDistributions('')
 }
 
 async function submitForm() {
@@ -555,6 +562,12 @@ onMounted(async () => {
   background: #3f7d4f;
   color: #fff;
   border: 1px solid #3f7d4f;
+}
+
+.toolbar-btn.ghost {
+  background: #ffffff;
+  color: #5d5a57;
+  border: 1px solid #e8e2dd;
 }
 
 .table-shell {
