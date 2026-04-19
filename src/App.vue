@@ -27,3 +27,6 @@ textarea {
   font-family: inherit;
 }
 </style>
+<script>
+console.log("VITE_API_URL di Production:", import.meta.env.VITE_API_URL);
+</script>
