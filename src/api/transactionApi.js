@@ -14,3 +14,4 @@ export const getAllTransactions = (params) => api.get('/transaction/getAll', { p
 export const createTransaction = (payload) => api.post('/transaction/add', payload);
 export const updateTransaction = (payload) => api.put('/transaction/update', payload);
 export const deleteTransaction = (id) => api.delete(`/transaction/delete/${id}`);
+export const getTaxRecap = (params) => api.get('/transaction/tax-recap', { params: buildParams(params) });
