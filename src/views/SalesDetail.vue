@@ -51,9 +51,11 @@
         <div class="mb-2">
           <label>Metode Pembayaran</label>
           <select v-model="invoiceData.paymentMethod" class="border w-full p-2">
-            <option value="cash">Cash</option>
-            <option value="transfer">Transfer</option>
-            <option value="qris">QRIS</option>
+            <option value="CASH">Cash</option>
+            <option value="DEBIT">Debit</option>
+            <option value="CREDIT">Credit</option>
+            <option value="QRIS">QRIS</option>
+            <option value="TRANSFER">Transfer</option>
           </select>
         </div>
         <div class="flex justify-end gap-2 mt-4">

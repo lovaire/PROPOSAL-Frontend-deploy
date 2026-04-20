@@ -48,9 +48,11 @@
         <input type="datetime-local" v-model="invoiceData.invoiceDate" />
         <label>Metode Pembayaran</label>
         <select v-model="invoiceData.paymentMethod">
-          <option value="cash">Cash</option>
-          <option value="transfer">Transfer</option>
-          <option value="qris">QRIS</option>
+          <option value="CASH">Cash</option>
+          <option value="DEBIT">Debit</option>
+          <option value="CREDIT">Credit</option>
+          <option value="QRIS">QRIS</option>
+          <option value="TRANSFER">Transfer</option>
         </select>
         <div class="modal-actions">
           <button class="cancel-btn" @click="closeInvoiceModal">Batal</button>
