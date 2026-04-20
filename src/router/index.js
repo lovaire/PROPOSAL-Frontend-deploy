@@ -27,6 +27,12 @@ const routes = [
         meta: { requiresAuth: true }
     },
     {
+        path: '/distributions',
+        name: 'distributions',
+        component: () => import('@/views/DistributionView.vue'),
+        meta: { requiresAuth: true }
+    },
+    {
         path: '/',
         redirect: '/users'
     },
@@ -81,7 +87,11 @@ const router = createRouter({
 router.beforeEach((to) => {
     const authStore = useAuthStore();
     const isLoggedIn = !!authStore.token;
-    // const userRole = authStore.user?.role?.toLowerCase(); 
+    const rawRole = authStore.user?.role || localStorage.getItem('role') || '';
+    const normalizedRole = rawRole.toLowerCase().startsWith('role_')
+        ? rawRole.toLowerCase().slice(5)
+        : rawRole.toLowerCase();
+    const userRoleUpper = rawRole.toUpperCase();
 
     if (to.meta.requiresGuest) {
         if (isLoggedIn) {
@@ -94,19 +104,26 @@ router.beforeEach((to) => {
         if (!isLoggedIn) {
             return '/login';
         }
-        // TODO: tambahkan pengecekan role jika perlu
-        // --- SISTEM KEAMANAN ROLE ---
+
+        // --- SISTEM KEAMANAN ROLE (dev baseline) ---
         const allowedRoles = to.meta.allowedRoles;
         if (allowedRoles && allowedRoles.length > 0) {
-            // Ambil role dari Pinia, pastikan formatnya huruf besar (uppercase) agar konsisten
-            const userRole = authStore.user?.role?.toUpperCase() || '';
-            
-            // Cek apakah role user saat ini ada di dalam array allowedRoles
-            if (!allowedRoles.includes(userRole)) {
+            const candidates = [userRoleUpper, rawRole, `ROLE_${userRoleUpper}`].filter(Boolean);
+            const isAllowed = candidates.some((candidate) => allowedRoles.includes(candidate));
+            if (!isAllowed) {
                 alert("Akses Ditolak: Anda tidak memiliki izin untuk membuka halaman ini.");
-                return '/transactions'; // Lempar kembali ke halaman yang aman (atau dashboard default)
+                return '/transactions';
             }
         }
+    }
+
+    // Legacy meta-based checks used in Sprint 1 routes
+    if (to.meta.requiresAdmin && normalizedRole !== 'admin') {
+        return '/users';
+    }
+
+    if (to.meta.requiresInv && normalizedRole !== 'inventory') {
+        return '/users';
     }
 
     return true;

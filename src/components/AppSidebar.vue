@@ -22,6 +22,10 @@
         Transactions
       </router-link>
 
+      <router-link to="/distributions" class="menu-item" active-class="active">
+        Distribusi Barang
+      </router-link>
+
       <router-link to="/tax-recap" class="menu-item">
         <span class="icon">📊</span>
         <span class="text">Tax Recap</span>
@@ -36,7 +40,12 @@
         Sales
       </router-link>
 
-      <router-link v-if="['/sales', '/menu'].some(path => route.path.includes(path))" class="submenu-item" to="/menu" active-class="active">
+      <router-link
+        v-if="['/sales', '/menu'].some((path) => route.path.includes(path))"
+        class="submenu-item"
+        to="/menu"
+        active-class="active"
+      >
         Menu
       </router-link>
 
