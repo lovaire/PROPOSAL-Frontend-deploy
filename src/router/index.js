@@ -59,6 +59,10 @@ const router = createRouter({
 router.beforeEach((to) => {
     const authStore = useAuthStore();
     const isLoggedIn = !!authStore.token;
+    const rawRole = authStore.user?.role || localStorage.getItem('role') || '';
+    const normalizedRole = rawRole.toLowerCase().startsWith('role_')
+        ? rawRole.toLowerCase().slice(5)
+        : rawRole.toLowerCase();
 
     if (to.meta.requiresGuest) {
         if (isLoggedIn) {
@@ -71,7 +75,14 @@ router.beforeEach((to) => {
         if (!isLoggedIn) {
             return '/login';
         }
-        // TODO: tambahkan pengecekan role jika perlu
+    }
+
+    if (to.meta.requiresAdmin && normalizedRole !== 'admin') {
+        return '/users';
+    }
+
+    if (to.meta.requiresInv && normalizedRole !== 'inventory') {
+        return '/users';
     }
 
     return true;

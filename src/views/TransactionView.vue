@@ -44,7 +44,7 @@
 
       <div class="table-shell">
         <div v-if="loading" class="table-state">Loading transactions...</div>
-        <div v-else-if="!transactions.length" class="table-state">No transactions found.</div>
+        <div v-else-if="requestSucceeded && !transactions.length" class="table-state">No transactions found.</div>
 
         <table v-else class="transaction-table">
           <thead>
@@ -185,6 +185,7 @@ const transactions = ref([])
 const totalNominal = ref(0)
 const count = ref(0)
 const loading = ref(false)
+const requestSucceeded = ref(false)
 const submitting = ref(false)
 const errorMessage = ref('')
 
@@ -230,7 +231,7 @@ function getFriendlyError(err) {
   const msg = err?.response?.data?.message
   if (msg) return msg
   if (status === 400) return 'Permintaan tidak valid. Mohon cek input.'
-  if (status === 401 || status === 403) return 'Akses ditolak. Silakan login ulang.'
+  if (status === 401 || status === 403) return 'Sesi login tidak valid atau akses ditolak. Silakan login ulang.'
   if (status === 404) return 'Data transaksi tidak ditemukan.'
   if (status >= 500) return 'Terjadi kesalahan server. Coba lagi nanti.'
   return 'Terjadi kesalahan. Coba lagi.'
@@ -245,11 +246,13 @@ async function fetchTransactions() {
     transactions.value = data.transactions || []
     totalNominal.value = data.totalNominal || 0
     count.value = data.count || 0
+    requestSucceeded.value = true
   } catch (err) {
     errorMessage.value = getFriendlyError(err)
     transactions.value = []
     totalNominal.value = 0
     count.value = 0
+    requestSucceeded.value = false
   } finally {
     loading.value = false
   }
