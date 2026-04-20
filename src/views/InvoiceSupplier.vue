@@ -22,7 +22,9 @@
             <th>Supplier</th>
             <th>Order Date</th>
             <th>Order Due</th>
-            <th>Amount</th>
+            <th>Subtotal</th>
+            <th>PPN (11%)</th>
+            <th>Total Amount</th>
             <th>Status</th>
             <th class="action-col">Action</th>
           </tr>
@@ -30,15 +32,17 @@
 
         <tbody>
           <tr v-if="loading">
-            <td colspan="7" class="state-text">Loading data from server...</td>
+            <td colspan="9" class="state-text">Loading data from server...</td>
           </tr>
 
           <tr v-else v-for="invoice in filteredInvoices" :key="invoice.id">
-            <td> {{ invoice.orderName }}</td>
+            <td>{{ invoice.orderName }}</td>
             <td>{{ invoice.supplierName || '-' }}</td>
             <td>{{ formatDate(invoice.orderDate) }}</td>
             <td>{{ formatDate(invoice.dueDate) }}</td>
-            <td>Rp {{ formatNumber(invoice.amount) }}</td>
+            <td>Rp {{ formatNumber(invoice.subtotal) }}</td>
+            <td>Rp {{ formatNumber(invoice.taxAmount) }}</td>
+            <td class="bold-text">Rp {{ formatNumber(invoice.amount) }}</td>
             <td>
               <span :class="['status-badge', invoice.status?.toLowerCase()]">
                 {{ invoice.status }}
@@ -53,7 +57,7 @@
           </tr>
 
           <tr v-if="!loading && filteredInvoices.length === 0">
-            <td colspan="7" class="state-text">No invoices found.</td>
+            <td colspan="9" class="state-text">No invoices found.</td>
           </tr>
         </tbody>
       </table>
@@ -69,7 +73,7 @@
             <input v-model="currentInvoice.orderName" type="text" placeholder="Masukkan nama order" />
           </div>
 
-          <div class="form-group">
+          <div class="form-group full-width">
             <label>Supplier</label>
             <select v-model="currentInvoice.supplierId" class="select-input">
               <option value="" disabled>Pilih Supplier</option>
@@ -79,11 +83,30 @@
             </select>
           </div>
 
-          <div class="form-group">
-            <label>Amount (Nominal)</label>
-            <input v-model.number="currentInvoice.amount" type="number" placeholder="0" />
+          <div class="form-group full-width">
+            <label>Subtotal (Nominal sebelum Pajak)</label>
+            <input v-model.number="currentInvoice.subtotal" type="number" placeholder="0" />
           </div>
 
+          <div class="form-group">
+            <label>Pajak (PPN 11%)</label>
+            <input 
+              :value="formatNumber(currentInvoice.taxAmount)" 
+              type="text" 
+              disabled 
+              class="readonly-input"
+            />
+          </div>
+
+          <div class="form-group">
+            <label>Total yang Harus Dibayar</label>
+            <input 
+              :value="formatNumber(currentInvoice.amount)" 
+              type="text" 
+              disabled 
+              class="readonly-input total-highlight"
+            />
+          </div>
           <div class="form-group">
             <label>Order Date</label>
             <input v-model="currentInvoice.orderDate" type="date" />
@@ -146,7 +169,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from "vue";
+import { ref, computed, onMounted, watch } from "vue";
 import MainLayout from "../layouts/MainLayout.vue";
 import { getAllInvoices, createInvoice, updateInvoiceApi, deleteInvoiceApi } from "../api/invoiceSupplierApi";
 import { getAllSuppliers } from "../api/apiSupplier";
@@ -167,7 +190,6 @@ const toast = ref({
   type: "success" 
 });
 
-
 const showDeleteModal = ref(false);
 const invoiceToDelete = ref(null);
 
@@ -176,10 +198,18 @@ const currentInvoice = ref({
   supplierId: "",
   orderDate: "",
   dueDate: "",
+  subtotal: 0,
+  taxAmount: 0,
   amount: 0,
   status: "Unpaid"
 });
 
+// LOGIKA KALKULASI PAJAK OTOMATIS
+watch(() => currentInvoice.value.subtotal, (newSubtotal) => {
+  const sub = parseFloat(newSubtotal) || 0;
+  currentInvoice.value.taxAmount = sub * 0.11; // PPN 11%
+  currentInvoice.value.amount = sub + currentInvoice.value.taxAmount; // Total = Subtotal + Pajak
+});
 
 const showToast = (msg, type = "success") => {
   toast.value = { show: true, message: msg, type };
@@ -187,7 +217,6 @@ const showToast = (msg, type = "success") => {
     toast.value.show = false;
   }, 3000); 
 };
-
 
 const fetchData = async () => {
   loading.value = true;
@@ -222,10 +251,8 @@ const activeSuppliers = computed(() => {
   });
 });
 
-
 const formatDate = (date) => date ? new Date(date).toLocaleDateString('id-ID') : '-';
 const formatNumber = (num) => new Intl.NumberFormat('id-ID').format(num || 0);
-
 
 const openModal = (invoice = null) => {
   errorMessage.value = ""; 
@@ -239,7 +266,16 @@ const openModal = (invoice = null) => {
   } else {
     isEdit.value = false;
     selectedId.value = null;
-    currentInvoice.value = { orderName: "", supplierId: "", orderDate: "", dueDate: "", amount: 0, status: "Unpaid" };
+    currentInvoice.value = { 
+      orderName: "", 
+      supplierId: "", 
+      orderDate: "", 
+      dueDate: "", 
+      subtotal: 0, 
+      taxAmount: 0, 
+      amount: 0, 
+      status: "Unpaid" 
+    };
   }
   showModal.value = true;
 };
@@ -285,15 +321,16 @@ const handleSubmit = async () => {
     return;
   }
 
-  if (!currentInvoice.value.amount || currentInvoice.value.amount <= 0) {
-    errorMessage.value = "Amount (Nominal) harus lebih besar dari 0!";
+  // Validasi diubah mengecek subtotal, bukan amount
+  if (!currentInvoice.value.subtotal || currentInvoice.value.subtotal <= 0) {
+    errorMessage.value = "Subtotal harus lebih besar dari 0!";
     showToast("Nominal tidak boleh 0", "error");
     return; 
   }
 
   if (!currentInvoice.value.orderDate || !currentInvoice.value.dueDate) {
-  showToast("Tanggal Order dan Tanggal Jatuh Tempo wajib diisi!", "error");
-  return; // Hentikan proses jika tanggal kosong
+    showToast("Tanggal Order dan Tanggal Jatuh Tempo wajib diisi!", "error");
+    return; 
   }
 
   if (currentInvoice.value.orderDate && currentInvoice.value.dueDate) {
@@ -339,6 +376,8 @@ table { width: 100%; border-collapse: collapse; }
 thead { background-color: #f4dfda; }
 th, td { padding: 18px 20px; text-align: left; border-bottom: 1px solid #f3e5e1; }
 
+.bold-text { font-weight: 700; color: #333; }
+
 .status-badge { 
   padding: 6px 12px; border-radius: 20px; font-size: 11px; font-weight: 700; 
   text-transform: uppercase; border: 1px solid transparent; 
@@ -360,6 +399,20 @@ th, td { padding: 18px 20px; text-align: left; border-bottom: 1px solid #f3e5e1;
 .full-width { grid-column: span 2; }
 .form-group label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 5px; }
 .form-group input, .select-input { width: 100%; padding: 12px; border: 1px solid #e8e8e8; border-radius: 10px; }
+
+/* Styling untuk Input Readonly */
+.readonly-input {
+  background-color: #f5f5f5;
+  color: #666;
+  cursor: not-allowed;
+}
+
+.total-highlight {
+  font-weight: bold;
+  color: #d83b2d;
+  background-color: #fce8e6;
+  border-color: #f98b7f;
+}
 
 .radio-group { display: flex; gap: 15px; margin-top: 5px; }
 .radio-group label { font-weight: 400; display: flex; align-items: center; gap: 5px; }
@@ -389,7 +442,6 @@ th, td { padding: 18px 20px; text-align: left; border-bottom: 1px solid #f3e5e1;
 
 .state-text { text-align: center; padding: 30px; color: #888; }
 
-/* Style untuk Toast Notification [cite: 173] */
 .toast-notification {
   position: fixed;
   top: 20px;
@@ -415,7 +467,6 @@ th, td { padding: 18px 20px; text-align: left; border-bottom: 1px solid #f3e5e1;
   border-left: 5px solid #a1170d;
 }
 
-/* Animasi Fade [cite: 173] */
 .fade-enter-active, .fade-leave-active {
   transition: opacity 0.5s, transform 0.5s;
 }

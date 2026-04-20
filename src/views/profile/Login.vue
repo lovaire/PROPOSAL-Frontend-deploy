@@ -20,12 +20,12 @@ const handleLogin = async () => {
     console.log(role);
 
     if (role === 'admin') {
-      router.push('/users');
+      await router.push('/users');
     } else if (role === 'inventory') {
-      router.push('/items');
+      await router.push('/items');
     } else {
       // Semua role lain (finance, financial, manager, dll) ke halaman transaksi
-      router.push('/transactions');
+      await router.push('/transactions');
     }
   } catch (e) {
     errorMessage.value = e.message;
