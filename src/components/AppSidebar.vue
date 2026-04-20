@@ -27,12 +27,12 @@
       </router-link>
 
       <router-link to="/tax-recap" class="menu-item">
-        <span class="icon">📊</span>
+        <span class="icon"></span>
         <span class="text">Tax Recap</span>
       </router-link>
 
       <router-link to="/tax-report" class="menu-item">
-        <span class="icon">📑</span>
+        <span class="icon"></span>
         <span class="text">Tax Report</span>
       </router-link>
 
@@ -62,7 +62,7 @@
 </template>
 
 <script setup>
-import logoUrl from '../assets/logo.svg'
+import logoUrl from '@/assets/logo.png';
 import {useAuthStore} from "@/stores/profile";
 import {useRoute} from "vue-router";
 

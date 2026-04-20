@@ -80,7 +80,7 @@ const showInvoiceModal = ref(false);
 const invoiceData = ref({
   salesId: route.params.id,
   invoiceDate: new Date().toISOString().slice(0, 16),
-  paymentMethod: 'cash'
+  paymentMethod: 'CASH'
 });
 
 const fetchDetail = async () => {
