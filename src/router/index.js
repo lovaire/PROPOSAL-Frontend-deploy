@@ -2,12 +2,12 @@ import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '@/stores/profile'
 
 const routes = [
-    {
-        path: '/register',
-        name: 'register',
-        component: () => import('@/views/profile/Register.vue'),
-        meta: { requiresAuth: true, requiresAdmin: true }
-    },
+    // {
+    //     path: '/register',
+    //     name: 'register',
+    //     component: () => import('@/views/profile/Register.vue'),
+    //     meta: { requiresAuth: true, requiresAdmin: true }
+    // },
     {
         path: '/login',
         name: 'login',
@@ -47,6 +47,34 @@ const routes = [
         name: 'ItemMaster',
         component: () => import('@/views/ItemMaster.vue'),
         meta: { requiresAuth: true }
+    },
+    {
+        path: '/tax-recap',
+        name: 'tax-recap',
+        component: () => import('@/views/TaxRecapView.vue'),
+        meta: { requiresAuth: true, allowedRoles: ['ADMIN', 'ROLE_ADMIN', 'MANAGER', 'ROLE_MANAGER', 'admin', 'manager'] }    },
+    {
+        path: '/tax-report',
+        name: 'tax-report',
+        component: () => import('@/views/TaxReportView.vue'),
+        meta: { requiresAuth: true, allowedRoles: ['ADMIN', 'ROLE_ADMIN', 'MANAGER', 'ROLE_MANAGER', 'FINANCE', 'ROLE_FINANCE','ROLE_FINANCIAL','admin', 'finance', 'manager', 'Financial'] }
+    },
+    {
+        path: '/sales',
+        name: 'Sales',
+        component: () => import('@/views/SalesView.vue'),
+        meta: { requiresAuth: true }
+    },
+    {
+        path: '/menu',
+        name: 'Menu',
+        component: () => import('@/views/MenuView.vue'),
+        meta: { requiresAuth: true }
+    },
+    {
+        path: '/invoice-supplier',
+        name: 'InvoiceSupplier',
+        component: () => import('../views/InvoiceSupplier.vue')
     }
 ];
 
@@ -63,6 +91,7 @@ router.beforeEach((to) => {
     const normalizedRole = rawRole.toLowerCase().startsWith('role_')
         ? rawRole.toLowerCase().slice(5)
         : rawRole.toLowerCase();
+    const userRoleUpper = rawRole.toUpperCase();
 
     if (to.meta.requiresGuest) {
         if (isLoggedIn) {
@@ -75,8 +104,20 @@ router.beforeEach((to) => {
         if (!isLoggedIn) {
             return '/login';
         }
+
+        // --- SISTEM KEAMANAN ROLE (dev baseline) ---
+        const allowedRoles = to.meta.allowedRoles;
+        if (allowedRoles && allowedRoles.length > 0) {
+            const candidates = [userRoleUpper, rawRole, `ROLE_${userRoleUpper}`].filter(Boolean);
+            const isAllowed = candidates.some((candidate) => allowedRoles.includes(candidate));
+            if (!isAllowed) {
+                alert("Akses Ditolak: Anda tidak memiliki izin untuk membuka halaman ini.");
+                return '/transactions';
+            }
+        }
     }
 
+    // Legacy meta-based checks used in Sprint 1 routes
     if (to.meta.requiresAdmin && normalizedRole !== 'admin') {
         return '/users';
     }

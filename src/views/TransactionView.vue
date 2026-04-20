@@ -86,7 +86,6 @@
       </div>
     </section>
 
-    <!-- Add/Edit Modal -->
     <div v-if="showFormModal" class="modal-overlay" @click.self="closeFormModal">
       <div class="modal-card form-modal">
         <h3 class="modal-title">{{ formMode === 'add' ? 'Add Transaction' : 'Edit Transaction' }}</h3>
@@ -116,9 +115,9 @@
             </div>
 
             <div class="modal-field">
-              <label class="modal-label">Total</label>
-              <input v-model.number="form.total" class="modal-input" type="number" min="1" placeholder="100000" />
-              <div v-if="formErrors.total" class="field-error">{{ formErrors.total }}</div>
+              <label class="modal-label">Subtotal</label>
+              <input v-model.number="form.subtotal" class="modal-input" type="number" min="1" placeholder="100000" />
+              <div v-if="formErrors.subtotal" class="field-error">{{ formErrors.subtotal }}</div>
             </div>
 
             <div class="modal-field full-width">
@@ -145,15 +144,13 @@
       </div>
     </div>
 
-    <!-- Delete Confirm Modal -->
     <div v-if="showDeleteModal" class="modal-overlay" @click.self="closeDeleteModal">
       <div class="modal-card delete-modal">
         <h3 class="modal-title delete-title">Confirm Delete</h3>
 
         <div class="delete-copy">
           You’re about to delete the item. Are you sure you want to delete
-          <strong>{{ selectedTransaction?.nama }}</strong
-          >?
+          <strong>{{ selectedTransaction?.nama }}</strong>?
         </div>
 
         <div v-if="modalErrorMessage" class="modal-error">
@@ -202,7 +199,7 @@ const form = ref({
   tanggal: '',
   nama: '',
   kategori: '',
-  total: null,
+  subtotal: null,
   catatan: ''
 })
 
@@ -210,7 +207,7 @@ const formErrors = ref({
   tanggal: '',
   nama: '',
   kategori: '',
-  total: ''
+  subtotal: ''
 })
 
 const modalErrorMessage = ref('')
@@ -278,10 +275,10 @@ function resetForm() {
     tanggal: '',
     nama: '',
     kategori: '',
-    total: null,
+    subtotal: null,
     catatan: ''
   }
-  formErrors.value = { tanggal: '', nama: '', kategori: '', total: '' }
+  formErrors.value = { tanggal: '', nama: '', kategori: '', subtotal: '' }
   modalErrorMessage.value = ''
 }
 
@@ -299,10 +296,10 @@ function openEditModal(tx) {
     tanggal: tx.tanggal || '',
     nama: tx.nama || '',
     kategori: tx.kategori || '',
-    total: typeof tx.total === 'number' ? tx.total : Number(tx.total || 0),
+    subtotal: typeof tx.subtotal === 'number' ? tx.subtotal : Number(tx.subtotal || 0),
     catatan: tx.catatan || ''
   }
-  formErrors.value = { tanggal: '', nama: '', kategori: '', total: '' }
+  formErrors.value = { tanggal: '', nama: '', kategori: '', subtotal: '' }
   modalErrorMessage.value = ''
   showFormModal.value = true
 }
@@ -326,15 +323,15 @@ function closeDeleteModal() {
 }
 
 function validateForm() {
-  const errs = { tanggal: '', nama: '', kategori: '', total: '' }
+  const errs = { tanggal: '', nama: '', kategori: '', subtotal: '' }
   if (!form.value.tanggal) errs.tanggal = 'Date wajib diisi.'
   if (!form.value.nama) errs.nama = 'Name wajib diisi.'
   if (!form.value.kategori) errs.kategori = 'Category wajib dipilih.'
-  const total = Number(form.value.total)
-  if (!total || Number.isNaN(total)) errs.total = 'Total wajib diisi.'
-  else if (total <= 0) errs.total = 'Total harus lebih dari 0.'
+  const subtotal = Number(form.value.subtotal)
+  if (!subtotal || Number.isNaN(subtotal)) errs.subtotal = 'Subtotal wajib diisi.'
+  else if (subtotal <= 0) errs.subtotal = 'Subtotal harus lebih dari 0.'
   formErrors.value = errs
-  return !errs.tanggal && !errs.nama && !errs.kategori && !errs.total
+  return !errs.tanggal && !errs.nama && !errs.kategori && !errs.subtotal
 }
 
 async function submitForm() {
@@ -347,7 +344,7 @@ async function submitForm() {
       tanggal: form.value.tanggal,
       nama: form.value.nama,
       kategori: form.value.kategori,
-      total: Number(form.value.total),
+      subtotal: Number(form.value.subtotal),
       catatan: form.value.catatan || ''
     }
 
