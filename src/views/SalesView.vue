@@ -197,17 +197,30 @@ const chartFetcher = async (firstDate, lastDate) => {
 const fetchData = async () => {
   loading.value = true;
   try {
-    const [salesRes, productsRes] = await Promise.all([
+    // Gunakan Promise.allSettled agar tidak terhenti jika salah satu gagal
+    const [salesResult, productsResult] = await Promise.allSettled([
       getAllSales(),
       getAllActiveProducts()
     ]);
-    console.log('Products response:', productsRes);
-    console.log('Products data:', productsRes.data.data);
-    sales.value = salesRes.data.data;
-    products.value = productsRes.data.data;
-    console.log('Products ref value:', products.value);
+
+    // Proses sales (tampilkan array kosong jika gagal)
+    if (salesResult.status === 'fulfilled') {
+      sales.value = salesResult.value.data.data;
+    } else {
+      console.error('Gagal memuat data sales:', salesResult.reason);
+      sales.value = [];
+    }
+
+    // Proses produk
+    if (productsResult.status === 'fulfilled') {
+      products.value = productsResult.value.data.data;
+      console.log('Produk berhasil dimuat:', products.value);
+    } else {
+      console.error('Gagal memuat data produk:', productsResult.reason);
+      products.value = [];
+    }
   } catch (error) {
-    console.error(error);
+    console.error('Error tak terduga:', error);
   } finally {
     loading.value = false;
   }
