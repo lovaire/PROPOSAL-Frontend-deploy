@@ -109,6 +109,12 @@
             <option value="QRIS">QRIS</option>
             <option value="TRANSFER">Transfer</option>
           </select>
+          <label>Status</label>
+          <select v-model="form.status" required>
+            <option value="PENDING">Pending</option>
+            <option value="PAID">Paid</option>
+            <option value="REVERSED">Reversed</option>
+          </select>
 
           <label>Item Penjualan</label>
           <div v-for="(item, idx) in form.items" :key="idx" class="item-row">
@@ -179,6 +185,7 @@ const form = ref({
   customer: '',
   catatan: '',
   paymentMethod: 'CASH',
+  status: 'PENDING',
   items: [{ productId: null, quantity: 1 }]
 });
 const invoiceData = ref({
@@ -246,6 +253,7 @@ const openAddModal = () => {
     customer: '',
     catatan: '',
     paymentMethod: 'CASH',
+    status: 'PENDING',
     items: [{ productId: null, quantity: 1 }]
   };
   showFormModal.value = true;
@@ -258,6 +266,7 @@ const openEditModal = (sale) => {
     customer: sale.customer,
     catatan: sale.catatan || '',
     paymentMethod: sale.paymentMethod,
+    status: sale.status,
     items: sale.items.map(item => ({
       id: item.id,
       productId: item.product?.id || null,
