@@ -174,13 +174,13 @@ const form = ref({
   tanggal: new Date().toISOString().slice(0, 16),
   customer: '',
   catatan: '',
-  paymentMethod: 'cash',
+  paymentMethod: 'CASH',
   items: [{ productId: null, quantity: 1 }]
 });
 const invoiceData = ref({
   salesId: '',
   invoiceDate: new Date().toISOString().slice(0, 16),
-  paymentMethod: 'cash'
+  paymentMethod: 'CASH'
 });
 
 const chartFetcher = async (firstDate, lastDate) => {
@@ -244,7 +244,7 @@ const openAddModal = () => {
     tanggal: new Date().toISOString().slice(0, 16),
     customer: '',
     catatan: '',
-    paymentMethod: 'cash',
+    paymentMethod: 'CASH',
     items: [{ productId: null, quantity: 1 }]
   };
   showFormModal.value = true;
@@ -333,7 +333,7 @@ const closeInvoiceModal = () => {
   invoiceData.value = {
     salesId: '',
     invoiceDate: new Date().toISOString().slice(0, 16),
-    paymentMethod: 'cash'
+    paymentMethod: 'CASH'
   };
 };
 const submitInvoice = async () => {
