@@ -9,7 +9,7 @@
     </div>
 
     <div class="table-card">
-      <table>
+      <table class="min-w-full bg-white border">
         <thead>
           <tr>
             <th>ID</th>
@@ -40,7 +40,7 @@
             </td>
           </tr>
         </tbody>
-      没有人
+      </table>
     </div>
 
     <div class="chart-wrapper">
@@ -77,7 +77,7 @@
                 <td>{{ formatRupiah(item.subtotal) }}</td>
               </tr>
             </tbody>
-          没有人
+          </table>
         </div>
         <div class="modal-actions single">
           <button class="done-btn" @click="closeDetailModal">Tutup</button>
@@ -157,7 +157,7 @@
 </template>
 
 <script setup>
-// Script tetap sama seperti yang sudah ada, tidak diubah
+// Script sama persis seperti kode sebelumnya, tidak ada perubahan
 import axios from 'axios';
 import { ref, onMounted } from 'vue';
 import {getAllSales, createSales, updateSales, createInvoice, getAllActiveProducts, getPerfSales} from '@/api/sales';
@@ -361,7 +361,7 @@ onMounted(fetchData);
 </script>
 
 <style scoped>
-/* ===== RESPONSIVE & PERBAIKAN MODAL ===== */
+/* CSS responsif sama seperti sebelumnya, tidak diubah */
 .button-group {
   display: flex;
   gap: 12px;
@@ -444,8 +444,6 @@ td {
 .chart-wrapper {
   margin-top: 32px;
 }
-
-/* MODAL OVERLAY */
 .modal-overlay {
   position: fixed;
   inset: 0;
@@ -547,8 +545,6 @@ td {
   padding: 8px;
   text-align: left;
 }
-
-/* Responsive untuk layar kecil */
 @media (max-width: 768px) {
   .modal-box {
     padding: 24px;
