@@ -276,11 +276,23 @@ const removeItem = (idx) => {
 };
 const submitForm = async () => {
   try {
+    // Pastikan paymentMethod uppercase
+    const payload = { ...form.value };
+    if (payload.paymentMethod) {
+      payload.paymentMethod = payload.paymentMethod.toUpperCase();
+    }
+    // Juga pastikan items tidak bermasalah
+    if (payload.items) {
+      payload.items = payload.items.map(item => ({
+        ...item,
+        productId: Number(item.productId) // pastikan integer
+      }));
+    }
     if (isEdit.value) {
-      await updateSales(form.value.id, form.value);
+      await updateSales(form.value.id, payload);
       alert('Penjualan berhasil diupdate');
     } else {
-      await createSales(form.value);
+      await createSales(payload);
       alert('Penjualan berhasil ditambahkan');
     }
     closeFormModal();
@@ -300,16 +312,19 @@ const openInvoiceModal = async (sale) => {
       return;
     }
 
-    const response = await axios.post(`/api/sales/${sale.id}/invoice-pdf`, {
+    const payload = {
       salesId: sale.id,
       invoiceDate: new Date().toISOString().slice(0, 16),
-      paymentMethod: sale.paymentMethod
-    }, {
+      paymentMethod: (sale.paymentMethod || 'CASH').toUpperCase()
+    };
+
+    const response = await axios.post(`/api/sales/${sale.id}/invoice-pdf`, payload, {
       headers: {
         'Authorization': `Bearer ${token}`
       },
       responseType: 'blob'
     });
+
 
     // Buat link download
     const url = window.URL.createObjectURL(new Blob([response.data]));
