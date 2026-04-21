@@ -201,8 +201,11 @@ const fetchData = async () => {
       getAllSales(),
       getAllActiveProducts()
     ]);
+    console.log('Products response:', productsRes);
+    console.log('Products data:', productsRes.data.data);
     sales.value = salesRes.data.data;
     products.value = productsRes.data.data;
+    console.log('Products ref value:', products.value);
   } catch (error) {
     console.error(error);
   } finally {
