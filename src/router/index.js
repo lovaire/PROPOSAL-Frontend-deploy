@@ -40,7 +40,7 @@ const routes = [
         path: '/supplier',
         name: 'supplier',
         component: () => import('@/views/ListSupplier.vue'),
-        meta: { requiresAuth: true, requiresInv: true }
+        meta: { requiresAuth: true }
     },
     {
         path: '/items',
