@@ -74,7 +74,8 @@
         </select>
         <p v-else class="role-text">{{ capitalizeRole(editForm.role) }}</p>
 
-        <div class="modal-actions single">
+        <div class="modal-actions">
+          <button class="cancel-btn" @click="closeUpdateModal">Cancel</button>
           <button class="done-btn" @click="handleUpdate" :disabled="submitting">
             {{ submitting ? "Saving..." : "Done" }}
           </button>
