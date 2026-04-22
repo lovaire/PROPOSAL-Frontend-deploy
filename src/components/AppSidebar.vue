@@ -6,43 +6,44 @@
     </div>
 
     <nav class="menu">
-      <!-- User Management hanya untuk admin -->
+      <!-- Admin only -->
       <router-link v-if="isAdmin" to="/users" class="menu-item" active-class="active">
         User Management
       </router-link>
 
-      <router-link to="/items" class="menu-item" active-class="active">
+      <!-- Manager & Inventory & Admin -->
+      <router-link v-if="showMasterBarang" to="/items" class="menu-item" active-class="active">
         Master Barang
       </router-link>
 
-      <router-link to="/supplier" class="menu-item" active-class="active">
+      <router-link v-if="showListSupplier" to="/supplier" class="menu-item" active-class="active">
         List Supplier
       </router-link>
 
-      <router-link to="/transactions" class="menu-item" active-class="active">
+      <router-link v-if="showTransactions" to="/transactions" class="menu-item" active-class="active">
         Transactions
       </router-link>
 
-      <router-link to="/distributions" class="menu-item" active-class="active">
+      <router-link v-if="showDistribusi" to="/distributions" class="menu-item" active-class="active">
         Distribusi Barang
       </router-link>
 
-      <router-link to="/tax-recap" class="menu-item">
+      <router-link v-if="showTaxRecap" to="/tax-recap" class="menu-item">
         <span class="icon"></span>
         <span class="text">Tax Recap</span>
       </router-link>
 
-      <router-link to="/tax-report" class="menu-item">
+      <router-link v-if="showTaxReport" to="/tax-report" class="menu-item">
         <span class="icon"></span>
         <span class="text">Tax Report</span>
       </router-link>
 
-      <router-link to="/sales" class="menu-item" active-class="active">
+      <router-link v-if="showSales" to="/sales" class="menu-item" active-class="active">
         Sales
       </router-link>
 
       <router-link
-        v-if="['/sales', '/menu'].some((path) => route.path.includes(path))"
+        v-if="showSales && ['/sales', '/menu'].some((path) => route.path.includes(path))"
         class="submenu-item"
         to="/menu"
         active-class="active"
@@ -50,18 +51,18 @@
         Menu
       </router-link>
 
-      <router-link to="/invoice-supplier" class="menu-item" active-class="active">
+      <router-link v-if="showInvoiceSupplier" to="/invoice-supplier" class="menu-item" active-class="active">
         Invoice Supplier
       </router-link>
     </nav>
 
     <div class="bottom-menu">
-      <!-- Menu Account untuk membuka modal update profil sendiri -->
+      <!-- Menu Account untuk membuka modal update profil sendiri (semua role) -->
       <div class="menu-item" @click="openAccountModal">Account</div>
       <div class="menu-item logout" @click="logout">Logout</div>
     </div>
 
-    <!-- Modal Update Akun Sendiri -->
+    <!-- Modal Update Akun Sendiri (sama seperti sebelumnya) -->
     <div v-if="showAccountModal" class="modal-overlay" @click.self="closeAccountModal">
       <div class="modal-box">
         <h2>Account Detail</h2>
@@ -96,8 +97,31 @@ import logoUrl from '@/assets/logo.png';
 
 const authStore = useAuthStore();
 const route = useRoute();
-const isAdmin = computed(() => authStore.user?.role === 'admin');
 
+// Normalisasi role (hilangkan prefix ROLE_ jika ada)
+const userRole = computed(() => {
+  let role = authStore.user?.role || '';
+  if (role.startsWith('ROLE_')) {
+    role = role.substring(5);
+  }
+  return role.toLowerCase();
+});
+
+// Helper untuk mengecek apakah role termasuk dalam daftar
+const hasRole = (roles) => roles.includes(userRole.value);
+
+// Mapping role ke menu
+const isAdmin = computed(() => userRole.value === 'admin');
+const showMasterBarang = computed(() => hasRole(['admin', 'manager', 'inventory']));
+const showListSupplier = computed(() => hasRole(['admin', 'manager', 'inventory']));
+const showTransactions = computed(() => hasRole(['admin', 'manager', 'finance']));
+const showDistribusi = computed(() => hasRole(['admin', 'manager', 'inventory']));
+const showTaxRecap = computed(() => hasRole(['admin', 'manager', 'finance']));
+const showTaxReport = computed(() => hasRole(['admin', 'manager', 'finance']));
+const showSales = computed(() => hasRole(['admin', 'manager', 'finance']));
+const showInvoiceSupplier = computed(() => hasRole(['admin', 'manager', 'finance', 'inventory'])); // semua kecuali? tapi finance dan inventory juga, sesuai mapping: finance dan inventory juga punya invoice supplier
+
+// Account Modal
 const showAccountModal = ref(false);
 const submitting = ref(false);
 const accountForm = ref({
@@ -135,7 +159,6 @@ const handleAccountUpdate = async () => {
     }
     await updateUser(authStore.user.id, payload);
     alert('Profil berhasil diupdate');
-    // Perbarui data di store jika diperlukan (misalnya username berubah)
     authStore.user.username = accountForm.value.username;
     closeAccountModal();
   } catch (error) {
@@ -152,7 +175,7 @@ const logout = () => {
 </script>
 
 <style scoped>
-/* ===== STYLE SIDEBAR ===== */
+/* ===== STYLE SIDEBAR ===== (sama seperti sebelumnya, tidak ada perubahan) */
 .sidebar {
   width: 220px;
   min-height: 100vh;
