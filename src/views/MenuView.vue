@@ -87,7 +87,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
-import { getAllProducts, createProduct, updateProduct, updateProductStatus, deleteProduct } from '@/api/sales';
+import { getAllProducts, createProduct, updateProduct, updateProductStatus } from '@/api/sales';
 import MainLayout from '@/layouts/MainLayout.vue';
 
 const products = ref([]);
@@ -156,18 +156,6 @@ const toggleStatus = async (prod) => {
   } catch (error) {
     console.error(error);
     alert('Gagal mengubah status menu');
-  }
-};
-
-const deleteProductHandler = async (id) => {
-  if (confirm('Yakin ingin menghapus menu ini?')) {
-    try {
-      await deleteProduct(id);
-      await fetchProducts();
-    } catch (error) {
-      console.error(error);
-      alert('Gagal menghapus menu');
-    }
   }
 };
 
