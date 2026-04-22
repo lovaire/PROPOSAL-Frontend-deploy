@@ -116,7 +116,7 @@ const showMasterBarang = computed(() => hasRole(['admin', 'manager', 'inventory'
 const showListSupplier = computed(() => hasRole(['admin', 'manager', 'inventory']));
 const showTransactions = computed(() => hasRole(['admin', 'manager', 'financial']));
 const showDistribusi = computed(() => hasRole(['admin', 'manager', 'inventory']));
-const showTaxRecap = computed(() => hasRole(['admin', 'manager', 'financial']));
+const showTaxRecap = computed(() => hasRole(['admin', 'manager']));
 const showTaxReport = computed(() => hasRole(['admin', 'manager', 'financial']));
 const showSales = computed(() => hasRole(['admin', 'manager', 'financial']));
 const showInvoiceSupplier = computed(() => hasRole(['admin', 'manager', 'financial', 'inventory'])); // semua kecuali? tapi finance dan inventory juga, sesuai mapping: finance dan inventory juga punya invoice supplier
