@@ -114,12 +114,12 @@ const hasRole = (roles) => roles.includes(userRole.value);
 const isAdmin = computed(() => userRole.value === 'admin');
 const showMasterBarang = computed(() => hasRole(['admin', 'manager', 'inventory']));
 const showListSupplier = computed(() => hasRole(['admin', 'manager', 'inventory']));
-const showTransactions = computed(() => hasRole(['admin', 'manager', 'finance']));
+const showTransactions = computed(() => hasRole(['admin', 'manager', 'financial']));
 const showDistribusi = computed(() => hasRole(['admin', 'manager', 'inventory']));
-const showTaxRecap = computed(() => hasRole(['admin', 'manager', 'finance']));
-const showTaxReport = computed(() => hasRole(['admin', 'manager', 'finance']));
-const showSales = computed(() => hasRole(['admin', 'manager', 'finance']));
-const showInvoiceSupplier = computed(() => hasRole(['admin', 'manager', 'finance', 'inventory'])); // semua kecuali? tapi finance dan inventory juga, sesuai mapping: finance dan inventory juga punya invoice supplier
+const showTaxRecap = computed(() => hasRole(['admin', 'manager', 'financial']));
+const showTaxReport = computed(() => hasRole(['admin', 'manager', 'financial']));
+const showSales = computed(() => hasRole(['admin', 'manager', 'financial']));
+const showInvoiceSupplier = computed(() => hasRole(['admin', 'manager', 'financial', 'inventory'])); // semua kecuali? tapi finance dan inventory juga, sesuai mapping: finance dan inventory juga punya invoice supplier
 
 // Account Modal
 const showAccountModal = ref(false);
