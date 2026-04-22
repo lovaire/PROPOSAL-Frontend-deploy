@@ -37,7 +37,6 @@
             <td class="action-buttons">
               <button class="update-btn" @click="openEditModal(prod)">Edit</button>
               <button class="delete-btn" @click="toggleStatus(prod)">{{ prod.isActive ? 'Nonaktifkan' : 'Aktifkan' }}</button>
-              <button class="delete-btn" @click="deleteProductHandler(prod.id)">Hapus</button>
             </td>
           </tr>
         </tbody>
