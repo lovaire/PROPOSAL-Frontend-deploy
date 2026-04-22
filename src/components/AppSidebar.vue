@@ -2,11 +2,12 @@
   <aside class="sidebar">
     <div class="logo-section">
       <img :src="logoUrl" alt="Logo" class="logo" />
-      <h2>Cansebu</h2>
+      <h2>SiCansebu</h2>
     </div>
 
     <nav class="menu">
-      <router-link to="/users" class="menu-item" active-class="active">
+      <!-- User Management hanya untuk admin -->
+      <router-link v-if="isAdmin" to="/users" class="menu-item" active-class="active">
         User Management
       </router-link>
 
@@ -55,23 +56,103 @@
     </nav>
 
     <div class="bottom-menu">
-      <div class="menu-item">Account</div>
+      <!-- Menu Account untuk membuka modal update profil sendiri -->
+      <div class="menu-item" @click="openAccountModal">Account</div>
       <div class="menu-item logout" @click="logout">Logout</div>
+    </div>
+
+    <!-- Modal Update Akun Sendiri -->
+    <div v-if="showAccountModal" class="modal-overlay" @click.self="closeAccountModal">
+      <div class="modal-box">
+        <h2>Account Detail</h2>
+        <label>Username</label>
+        <input v-model="accountForm.username" type="text" />
+        <label>Password</label>
+        <input
+          v-model="accountForm.password"
+          type="password"
+          placeholder="Kosongkan jika tidak ingin diubah"
+        />
+        <label>Role</label>
+        <p class="role-text">{{ capitalizeRole(authStore.user?.role) }}</p>
+
+        <div class="modal-actions">
+          <button class="cancel-btn" @click="closeAccountModal">Cancel</button>
+          <button class="done-btn" @click="handleAccountUpdate" :disabled="submitting">
+            {{ submitting ? "Saving..." : "Done" }}
+          </button>
+        </div>
+      </div>
     </div>
   </aside>
 </template>
 
 <script setup>
+import { ref, computed } from 'vue';
+import { useAuthStore } from '@/stores/profile';
+import { useRoute } from 'vue-router';
+import { updateUser } from '@/api/userApi';
 import logoUrl from '@/assets/logo.png';
-import {useAuthStore} from "@/stores/profile";
-import {useRoute} from "vue-router";
 
-const authStore = useAuthStore()
-const logout = () => authStore.logout()
-const route = useRoute()
+const authStore = useAuthStore();
+const route = useRoute();
+const isAdmin = computed(() => authStore.user?.role === 'admin');
+
+const showAccountModal = ref(false);
+const submitting = ref(false);
+const accountForm = ref({
+  username: '',
+  password: ''
+});
+
+const openAccountModal = () => {
+  accountForm.value = {
+    username: authStore.user?.username || '',
+    password: ''
+  };
+  showAccountModal.value = true;
+};
+
+const closeAccountModal = () => {
+  showAccountModal.value = false;
+  accountForm.value = { username: '', password: '' };
+};
+
+const capitalizeRole = (role) => {
+  if (!role) return '-';
+  return role.charAt(0).toUpperCase() + role.slice(1).toLowerCase();
+};
+
+const handleAccountUpdate = async () => {
+  if (!authStore.user) return;
+  submitting.value = true;
+  try {
+    const payload = {
+      username: accountForm.value.username
+    };
+    if (accountForm.value.password) {
+      payload.password = accountForm.value.password;
+    }
+    await updateUser(authStore.user.id, payload);
+    alert('Profil berhasil diupdate');
+    // Perbarui data di store jika diperlukan (misalnya username berubah)
+    authStore.user.username = accountForm.value.username;
+    closeAccountModal();
+  } catch (error) {
+    console.error(error);
+    alert(error?.response?.data?.message || 'Gagal update profil');
+  } finally {
+    submitting.value = false;
+  }
+};
+
+const logout = () => {
+  authStore.logout();
+};
 </script>
 
 <style scoped>
+/* ===== STYLE SIDEBAR ===== */
 .sidebar {
   width: 220px;
   min-height: 100vh;
@@ -98,7 +179,7 @@ const route = useRoute()
 
 .logo-section h2 {
   margin: 0;
-  color: #d83b2d; /* Warna merah khas Cansebu */
+  color: #d83b2d;
   font-size: 28px;
   font-weight: 700;
 }
@@ -107,7 +188,7 @@ const route = useRoute()
   display: flex;
   flex-direction: column;
   gap: 12px;
-  flex-grow: 1; /* Agar menu fitur mengambil ruang sisa */
+  flex-grow: 1;
 }
 
 .menu-item {
@@ -124,7 +205,6 @@ const route = useRoute()
   background-color: #f2f2f2;
 }
 
-/* Style saat menu dipilih (Active) */
 .active {
   background-color: #eef7f2;
   color: #2d7d5f;
@@ -150,11 +230,91 @@ const route = useRoute()
   display: flex;
   flex-direction: column;
   gap: 10px;
-  border-top: 1px solid #eee; /* Pembatas antara fitur dan menu bawah */
+  border-top: 1px solid #eee;
   padding-top: 20px;
 }
 
 .logout {
-  color: #d83b2d; /* Memberi warna merah pada logout sebagai peringatan */
+  color: #d83b2d;
+}
+
+/* ===== STYLE MODAL ===== */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-box {
+  width: 420px;
+  background: white;
+  border-radius: 32px;
+  padding: 36px 42px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+}
+
+.modal-box h2 {
+  margin: 0 0 24px 0;
+  font-size: 22px;
+  font-weight: 700;
+  color: #1d1d1d;
+}
+
+.modal-box label {
+  display: block;
+  margin-bottom: 8px;
+  margin-top: 14px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #333;
+}
+
+.modal-box input {
+  width: 100%;
+  padding: 14px 16px;
+  border: 1px solid #e8e8e8;
+  border-radius: 10px;
+  outline: none;
+  font-size: 14px;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 28px;
+}
+
+.cancel-btn {
+  background: white;
+  border: 1px solid #e5e5e5;
+  color: #3a6f5c;
+  border-radius: 10px;
+  padding: 12px 28px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.done-btn {
+  background: #2e7d32;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 26px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.role-text {
+  margin-top: 8px;
+  padding: 14px 16px;
+  background-color: #f5f5f5;
+  border-radius: 10px;
+  font-size: 14px;
+  color: #333;
 }
 </style>
