@@ -119,7 +119,7 @@ const showDistribusi = computed(() => hasRole(['admin', 'manager', 'inventory'])
 const showTaxRecap = computed(() => hasRole(['admin', 'manager']));
 const showTaxReport = computed(() => hasRole(['admin', 'manager', 'financial']));
 const showSales = computed(() => hasRole(['admin', 'manager', 'financial']));
-const showInvoiceSupplier = computed(() => hasRole(['admin', 'financial', 'inventory'])); 
+const showInvoiceSupplier = computed(() => hasRole(['admin', 'financial'])); 
 
 // Account Modal
 const showAccountModal = ref(false);
