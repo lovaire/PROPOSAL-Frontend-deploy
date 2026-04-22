@@ -213,11 +213,22 @@ function getFriendlyError(err) {
   const status = err?.response?.status
   const msg = err?.response?.data?.message
 
-  if (msg) return msg
-  if (status === 400) return 'Validasi gagal atau stok tidak cukup.'
-  if (status === 403) return 'Akses ditolak. Silakan login ulang.'
-  if (status === 404) return 'Item tidak ditemukan.'
+  if (
+    msg &&
+    !msg.toLowerCase().includes('authentication') &&
+    !msg.toLowerCase().includes('access is denied')
+  ) {
+    return msg
+  }
+
+  if (status === 401 || status === 403) {
+    return 'Sesi login tidak valid atau akses ditolak. Silakan login ulang.'
+  }
+
+  if (status === 400) return 'Validasi gagal atau stok tidak mencukupi.'
+  if (status === 404) return 'Data tidak ditemukan.'
   if (status >= 500) return 'Terjadi kesalahan server. Coba lagi nanti.'
+
   return 'Terjadi kesalahan. Coba lagi.'
 }
 
