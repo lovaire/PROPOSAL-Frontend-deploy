@@ -237,7 +237,7 @@ onMounted(fetchSuppliers);
 .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
 .create-btn { background-color: #dff0e7; color: #3a6f5c; border: none; border-radius: 12px; padding: 14px 22px; font-weight: 600; cursor: pointer; }
 
-.table-card { background: #fff; border-radius: 20px; border: 1px solid #f0deda; overflow: hidden; }
+.table-card { background: #fff; border-radius: 20px; border: 1px solid #f0deda; overflow-x: auto; -webkit-overflow-scrolling: touch; }
 .search-input { width: 100%; padding: 12px; border: 1px solid #e8e8e8; border-radius: 10px; outline: none; }
 table { width: 100%; border-collapse: collapse; }
 thead { background-color: #f4dfda; }
@@ -263,4 +263,41 @@ th, td { padding: 18px 20px; text-align: left; border-bottom: 1px solid #f3e5e1;
 .modal-actions { display: flex; justify-content: flex-end; gap: 12px; margin-top: 25px; }
 .done-btn { background: #2e7d32; color: white; border: none; padding: 12px 25px; border-radius: 10px; cursor: pointer; font-weight: 600; }
 .cancel-btn { background: #f5f5f5; color: #666; border: none; padding: 12px 25px; border-radius: 10px; cursor: pointer; }
+/* Tambahan untuk responsifitas */
+.table-card {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.modal-box {
+  max-width: 100%;
+}
+
+@media (max-width: 768px) {
+  .page-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+  .create-btn {
+    width: 100%;
+    text-align: center;
+  }
+  th, td {
+    padding: 12px 10px;
+  }
+  .action-buttons {
+    flex-direction: column;
+    gap: 8px;
+  }
+  .action-buttons button {
+    width: 100%;
+  }
+  .modal-box {
+    width: calc(100% - 40px);
+    max-width: 400px;
+    padding: 24px;
+    margin: 20px;
+  }
+}
 </style>
