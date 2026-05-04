@@ -70,7 +70,7 @@ import MainLayout from '@/layouts/MainLayout.vue';
 import { useAuthStore } from '@/stores/profile';
 
 const authStore = useAuthStore();
-const isAdmin = computed(() => authStore.user?.role === 'admin');
+const isAdmin = computed(() => authStore.user?.role === 'ADMIN');
 
 const sales = ref([]);
 const loading = ref(true);

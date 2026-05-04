@@ -67,10 +67,10 @@
 
         <label>Role</label>
         <select v-if="isAdmin" v-model="editForm.role">
-          <option value="admin">Admin</option>
-          <option value="manager">Manager</option>
-          <option value="financial">Financial</option>
-          <option value="inventory">Inventory</option>
+          <option value="ADMIN">Admin</option>
+          <option value="MANAJERIAL">Manajerial</option>
+          <option value="KEUANGAN">Keuangan</option>
+          <option value="INVENTORI">Inventori</option>
         </select>
         <p v-else class="role-text">{{ capitalizeRole(editForm.role) }}</p>
 
@@ -107,9 +107,9 @@
             <option value="" disabled selected>Select a Role</option>
 
             <option value="ADMIN">Admin</option>
-            <option value="MANAGER">Manager</option>
-            <option value="FINANCE">Finance</option>
-            <option value="INVENTORY">Inventory</option>
+            <option value="MANAJERIAL">Manajerial</option>
+            <option value="KEUANGAN">Keuangan</option>
+            <option value="INVENTORI">Inventori</option>
           </select>
 
           <div class="modal-actions single-action">
@@ -160,12 +160,12 @@ const selectedUser = ref(null);
 
 const currentUserId = computed(() => authStore.user?.id || '');
 const currentUserRole = computed(() => authStore.user?.role || '');
-const isAdmin = computed(() => currentUserRole.value === 'admin');
+const isAdmin = computed(() => currentUserRole.value === 'ADMIN');
 
 const editForm = ref({
   username: "",
   password: "",
-  role: "admin",
+  role: "ADMIN",
 });
 
 const fetchUsers = async () => {
@@ -192,7 +192,7 @@ const openUpdateModal = (user) => {
   editForm.value = {
     username: user.username || "",
     password: "",
-    role: (user.role || "admin").toLowerCase(),
+    role: (user.role || "ADMIN").toLowerCase(),
   };
   showUpdateModal.value = true;
 };
@@ -203,7 +203,7 @@ const closeUpdateModal = () => {
   editForm.value = {
     username: "",
     password: "",
-    role: "admin",
+    role: "ADMIN",
   };
 };
 

@@ -19,9 +19,9 @@ const handleLogin = async () => {
     const role = await authStore.login(formData.value);
     console.log(role);
 
-    if (role === 'admin') {
+    if (role === 'ADMIN') {
       await router.push('/users');
-    } else if (role === 'inventory') {
+    } else if (role === 'INVENTORI') {
       await router.push('/items');
     } else {
       // Semua role lain (finance, financial, manager, dll) ke halaman transaksi

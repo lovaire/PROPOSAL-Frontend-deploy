@@ -2,12 +2,6 @@ import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '@/stores/profile'
 
 const routes = [
-    // {
-    //     path: '/register',
-    //     name: 'register',
-    //     component: () => import('@/views/profile/Register.vue'),
-    //     meta: { requiresAuth: true, requiresAdmin: true }
-    // },
     {
         path: '/login',
         name: 'login',
@@ -52,12 +46,12 @@ const routes = [
         path: '/tax-recap',
         name: 'tax-recap',
         component: () => import('@/views/TaxRecapView.vue'),
-        meta: { requiresAuth: true, allowedRoles: ['ADMIN', 'ROLE_ADMIN', 'MANAGER', 'ROLE_MANAGER', 'admin', 'manager'] }    },
+        meta: { requiresAuth: true, allowedRoles: ['ADMIN', 'MANAJERIAL'] }    },
     {
         path: '/tax-report',
         name: 'tax-report',
         component: () => import('@/views/TaxReportView.vue'),
-        meta: { requiresAuth: true, allowedRoles: ['ADMIN', 'ROLE_ADMIN', 'MANAGER', 'ROLE_MANAGER', 'FINANCE', 'ROLE_FINANCE','ROLE_FINANCIAL','admin', 'finance', 'manager', 'Financial'] }
+        meta: { requiresAuth: true, allowedRoles: ['ADMIN', 'MANAJERIAL', 'KEUANGAN'] }
     },
     {
         path: '/sales',
@@ -122,7 +116,7 @@ router.beforeEach((to) => {
         return '/users';
     }
 
-    if (to.meta.requiresInv && normalizedRole !== 'inventory') {
+    if (to.meta.requiresInv && normalizedRole !== 'inventori') {
         return '/users';
     }
 
