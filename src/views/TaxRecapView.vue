@@ -126,7 +126,7 @@ async function fetchData() {
     transactions.value = listRes.data?.transactions || []
     
   } catch (err) {
-    errorMessage.value = 'Gagal mengambil data. Pastikan Anda memiliki akses Admin/Manager.'
+    errorMessage.value = 'Gagal mengambil data. Pastikan Anda memiliki akses Admin/Manajerial.'
     console.error(err)
   } finally {
     loading.value = false
