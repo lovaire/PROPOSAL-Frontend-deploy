@@ -17,3 +17,10 @@ export const createProduct = (data) => api.post('/sales/product/add', data);
 export const updateProduct = (data) => api.put('/sales/product/update', data);
 export const updateProductStatus = (id) => api.put(`/sales/product/${id}`);
 export const deleteProduct = (id) => api.delete(`/sales/product/${id}`);
+
+export const getIncomeSummary = (startDate, endDate) => {
+  const params = {};
+  if (startDate) params.startDate = startDate;
+  if (endDate) params.endDate = endDate;
+  return api.get('/fnb/income/summary', { params });
+};

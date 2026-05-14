@@ -60,6 +60,18 @@ const routes = [
         meta: { requiresAuth: true }
     },
     {
+        path: '/revenue-summary',
+        name: 'RevenueSummary',
+        component: () => import('@/views/RevenueSummary.vue'),
+        meta: { requiresAuth: true}
+    },
+    {
+        path: '/income-summary',
+        name: 'IncomeSummary',
+        component: () => import('@/views/IncomeSummary.vue'),
+        meta: { requiresAuth: true}
+    },
+    {
         path: '/menu',
         name: 'Menu',
         component: () => import('@/views/MenuView.vue'),
