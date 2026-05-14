@@ -16,8 +16,17 @@ const errorMessage = ref('');
 
 const handleLogin = async () => {
   try {
-    await authStore.login(formData.value);
-    router.push('/users');
+    const role = await authStore.login(formData.value);
+    console.log(role);
+
+    if (role === 'ADMIN') {
+      await router.push('/users');
+    } else if (role === 'INVENTORI') {
+      await router.push('/items');
+    } else {
+      // Semua role lain (finance, financial, manager, dll) ke halaman transaksi
+      await router.push('/transactions');
+    }
   } catch (e) {
     errorMessage.value = e.message;
     console.error(e);
@@ -30,7 +39,7 @@ const handleLogin = async () => {
     <div class="left-section">
       <div class="logo-box">
         <div class="logo-placeholder">
-          <img src="https://via.placeholder.com/130x130?text=Logo" alt="Logo" style="width:100%; height:100%; object-fit:cover;">
+          <img src="https://blogger.googleusercontent.com/img/a/AVvXsEhGgBsgvmOiIdy9PyQd1K5tlCQqWf79sQxVDJy2V0zD7o1O0PtRhX6dCYnLX9w1AkxTrsrOr8usSHFHgT-BZDv5OOOlkETPXIhy-Oaze04VNZ7WTP29JK5yXerOUSSLFDHr-8HKqdyQECZTjxy13_qy0i5MueKyDltZkuFTjCwYvwBE96rGbqZAgBO6ZdA" alt="Logo" style="width:100%; height:100%; object-fit:cover;">
         </div>
       </div>
       <p class="welcome-text">Selamat Datang di</p>

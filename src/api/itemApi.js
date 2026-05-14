@@ -1,20 +1,7 @@
-import { createApi } from "@/api/base"; // Menggunakan base konfigurasi tim 
+// src/api/itemApi.js
+import api from './axios';
 
-// Sesuaikan dengan RequestMapping di Controller Backend-mu
-const api = createApi("http://localhost:8080/api/item"); 
-
-export const getAllItems = () => {
-    return api.get('/getAll');
-};
-
-export const addItem = (data) => {
-    return api.post('/add', data);
-};
-
-export const updateItem = (data) => {
-    return api.put('/update', data);
-};
-
-export const deleteItem = (id) => {
-    return api.delete(`/delete/${id}`);
-};
+export const getAllItems = () => api.get('/item/getAll');
+export const addItem = (data) => api.post('/item/add', data);
+export const updateItem = (data) => api.put('/item/update', data);
+export const deleteItem = (id) => api.delete(`/item/delete/${id}`);

@@ -2,7 +2,7 @@
   <MainLayout>
     <div class="page-header">
       <div></div>
-      <button class="create-btn" @click="$router.push('/register')" v-if="isAdmin">+ Create Account</button>
+      <button class="create-btn" @click="openRegisterModal()" v-if="isAdmin">+ Create Account</button>
     </div>
 
     <div class="table-card">
@@ -67,18 +67,56 @@
 
         <label>Role</label>
         <select v-if="isAdmin" v-model="editForm.role">
-          <option value="admin">Admin</option>
-          <option value="manager">Manager</option>
-          <option value="financial">Financial</option>
-          <option value="inventory">Inventory</option>
+          <option value="ADMIN">Admin</option>
+          <option value="MANAJERIAL">Manajerial</option>
+          <option value="KEUANGAN">Keuangan</option>
+          <option value="INVENTORI">Inventori</option>
         </select>
         <p v-else class="role-text">{{ capitalizeRole(editForm.role) }}</p>
 
-        <div class="modal-actions single">
+        <div class="modal-actions">
+          <button class="cancel-btn" @click="closeUpdateModal">Cancel</button>
           <button class="done-btn" @click="handleUpdate" :disabled="submitting">
             {{ submitting ? "Saving..." : "Done" }}
           </button>
         </div>
+      </div>
+    </div>
+
+    <!--Modal Register-->
+    <div v-if="showRegisterModal" class="modal-overlay">
+      <div class="modal-box">
+        <h2>Create User</h2>
+        <p v-if="errorMessage" class="error">{{ errorMessage }}</p>
+
+        <form @submit.prevent="handleRegister" class="modal-form">
+          <p v-if="formData.email && !isEmailValid" class="error-text">
+            Format email tidak valid (contoh: user@mail.com)
+          </p>
+          <label for="email" class="modal-label">Email</label>
+          <input type="email" v-model="formData.email" class="modal-input" :class="{ 'modal-error': formData.email && !isEmailValid }" required/>
+
+          <label for="username" class="modal-label">Username</label>
+          <input type="text" v-model="formData.username" class="modal-input" required/>
+
+          <label for="password" class="modal-label">Password</label>
+          <input type="password" v-model="formData.password" class="modal-input" required/>
+
+          <label for="role" class="modal-label">Role</label>
+          <select v-model="formData.role" class="modal-input" required>
+            <option value="" disabled selected>Select a Role</option>
+
+            <option value="ADMIN">Admin</option>
+            <option value="MANAJERIAL">Manajerial</option>
+            <option value="KEUANGAN">Keuangan</option>
+            <option value="INVENTORI">Inventori</option>
+          </select>
+
+          <div class="modal-actions single-action">
+            <button class="cancel-btn" @click="closeRegisterModal">Cancel</button>
+            <button :class="isEmailValid ? 'done-btn' : 'nonactive-btn'" :disabled="!isEmailValid" type="submit">Add</button>
+          </div>
+        </form>
       </div>
     </div>
 
@@ -117,23 +155,24 @@ const submitting = ref(false);
 
 const showUpdateModal = ref(false);
 const showDeleteModal = ref(false);
+const showRegisterModal = ref(false);
 const selectedUser = ref(null);
 
-// Data user yang login dari store
 const currentUserId = computed(() => authStore.user?.id || '');
 const currentUserRole = computed(() => authStore.user?.role || '');
-const isAdmin = computed(() => currentUserRole.value === 'admin');
+const isAdmin = computed(() => currentUserRole.value === 'ADMIN');
 
 const editForm = ref({
   username: "",
   password: "",
-  role: "admin",
+  role: "ADMIN",
 });
 
 const fetchUsers = async () => {
   loading.value = true;
   try {
     const response = await getAllUsers();
+    console.log('Response users:', response);
     users.value = response.data.data || [];
   } catch (error) {
     console.error("Gagal mengambil data user:", error);
@@ -153,7 +192,7 @@ const openUpdateModal = (user) => {
   editForm.value = {
     username: user.username || "",
     password: "",
-    role: (user.role || "admin").toLowerCase(),
+    role: user.role || "ADMIN",
   };
   showUpdateModal.value = true;
 };
@@ -164,7 +203,7 @@ const closeUpdateModal = () => {
   editForm.value = {
     username: "",
     password: "",
-    role: "admin",
+    role: "ADMIN",
   };
 };
 
@@ -179,8 +218,7 @@ const handleUpdate = async () => {
     if (editForm.value.password) {
       payload.password = editForm.value.password;
     }
-    // Hanya admin yang boleh mengirim role
-    if (isAdmin.value) {
+    if (isAdmin.value && editForm.value.role && editForm.value.role.trim() !== '') {
       payload.role = editForm.value.role;
     }
 
@@ -222,6 +260,39 @@ const handleDelete = async () => {
     submitting.value = false;
   }
 };
+
+const openRegisterModal = () => {
+  showRegisterModal.value = true;
+}
+
+const closeRegisterModal = () => {
+  showRegisterModal.value = false;
+}
+
+const formData = ref({
+  email: '',
+  username: '',
+  password: '',
+  role: ''
+});
+
+const errorMessage = ref('');
+
+const handleRegister = async () => {
+  try {
+    await authStore.register(formData.value);
+    alert('User berhasil dibuat');
+    await fetchUsers();
+  } catch (e) {
+    errorMessage.value = e.message;
+    console.error(e);
+  }
+};
+
+const isEmailValid = computed(() => {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(formData.value.email);
+});
 
 onMounted(() => {
   fetchUsers();
@@ -341,6 +412,15 @@ td {
   font-size: 14px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
 }
+.modal-error {
+  width: 100%;
+  padding: 14px 16px;
+  border: 1px solid #e8e8e8;
+  border-radius: 10px;
+  outline: 1px red;
+  font-size: 14px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
 .modal-actions {
   display: flex;
   justify-content: flex-end;
@@ -352,6 +432,15 @@ td {
 }
 .done-btn {
   background: #2e7d32;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 26px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.nonactive-btn {
+  background: lightgrey;
   color: white;
   border: none;
   border-radius: 8px;
@@ -392,5 +481,10 @@ td {
   border-radius: 10px;
   font-size: 14px;
   color: #333;
+}
+
+.error-text {
+  color: red;
+  font-size: 12px;
 }
 </style>

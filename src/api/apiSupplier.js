@@ -1,19 +1,8 @@
-import axios from 'axios';
-import { createApi } from "@/api/base";
+// src/api/supplierApi.js
+import api from './axios';
 
-const api = createApi('http://localhost:8080/api/suppliers');
-const API_URL = 'http://localhost:8080/api/suppliers';
 
-export const getAllSuppliers = () => {
-  return api.get(API_URL);
-};
-
-export const createSupplier = (data) => axios.post(API_URL, data);
-
-export const updateSupplierApi = (id, data) => {
-  return api.put(`${API_URL}/${id}`, data);
-};
-
-export const deleteSupplierApi = (id) => {
-  return api.delete(`${API_URL}/${id}`);
-};
+export const getAllSuppliers = () => api.get("/suppliers");
+export const createSupplier = (data) => api.post("/suppliers", data);
+export const updateSupplierApi = (id, data) => api.put(`/suppliers/${id}`, data);
+export const deleteSupplierApi = (id) => api.delete(`/suppliers/${id}`);
