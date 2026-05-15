@@ -54,6 +54,15 @@ const routes = [
         meta: { requiresAuth: true, allowedRoles: ['ADMIN', 'MANAJERIAL', 'KEUANGAN'] }
     },
     {
+        path: '/dashboard-roi',
+        name: 'DashboardROI',
+        component: () => import('@/views/DashboardROI.vue'), // Pastikan file view ini sudah kamu buat
+        meta: { 
+            requiresAuth: true, 
+            allowedRoles: ['ADMIN', 'MANAJERIAL'] // ROI biasanya untuk level Manager/Admin
+        }
+    },
+    {
         path: '/sales',
         name: 'Sales',
         component: () => import('@/views/SalesView.vue'),
