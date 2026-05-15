@@ -11,6 +11,10 @@
         User Management
       </router-link>
 
+      <router-link v-if="showDashboardROI" to="/dashboard-roi" class="menu-item" active-class="active">
+        Dashboard ROI
+      </router-link>
+
       <!-- Manager & Inventory & Admin -->
       <router-link v-if="showMasterBarang" to="/items" class="menu-item" active-class="active">
         Master Barang
@@ -119,6 +123,7 @@ const showDistribusi = computed(() => hasRole(['admin', 'manager', 'inventory'])
 const showTaxRecap = computed(() => hasRole(['admin', 'manager']));
 const showTaxReport = computed(() => hasRole(['admin', 'manager', 'financial']));
 const showSales = computed(() => hasRole(['admin', 'manager', 'financial']));
+const showDashboardROI = computed(() => hasRole(['admin', 'manager']));
 const showInvoiceSupplier = computed(() => hasRole(['admin', 'financial'])); 
 
 // Account Modal
