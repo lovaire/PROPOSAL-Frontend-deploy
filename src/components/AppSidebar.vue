@@ -139,7 +139,6 @@ const showTransactions = computed(() => hasRole(['admin', 'manager', 'financial'
 const showDistribusi = computed(() => hasRole(['admin', 'manager', 'inventory']));
 const showTaxRecap = computed(() => hasRole(['admin', 'manager']));
 const showTaxReport = computed(() => hasRole(['admin', 'manager', 'financial']));
-const showSales = computed(() => hasRole(['admin', 'manager', 'financial']));
 const showDashboardROI = computed(() => hasRole(['admin', 'manager']));
 const showInvoiceSupplier = computed(() => hasRole(['admin', 'financial'])); 
 
