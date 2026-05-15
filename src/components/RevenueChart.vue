@@ -147,7 +147,7 @@ function formatDate(date) {
 }
 
 function formatAxisDate(isoStr) {
-  if (!isoStr || typeof isoStr !== 'string') return '';
+  if (!isoStr || typeof isoStr !== 'string') return '';  // guard untuk undefined
   const parts = isoStr.split('-');
   if (parts.length < 3) return isoStr;
   const [y, m, d] = parts;
