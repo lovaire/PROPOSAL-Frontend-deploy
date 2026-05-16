@@ -27,6 +27,12 @@ const routes = [
         meta: { requiresAuth: true }
     },
     {
+        path: '/distributions/summary',
+        name: 'Distribution Summary',
+        component: () => import('@/views/DistributionSummary.vue'),
+        meta: { requiresAuth: true, allowedRoles: ['ADMIN', 'MANAJERIAL'] }
+    },
+    {
         path: '/',
         redirect: '/users'
     },
@@ -57,6 +63,12 @@ const routes = [
         path: '/sales',
         name: 'Sales',
         component: () => import('@/views/SalesView.vue'),
+        meta: { requiresAuth: true }
+    },
+    {
+        path: '/sales/chart',
+        name: 'Sales Chart',
+        component: () => import('@/views/SalesChart.vue'),
         meta: { requiresAuth: true }
     },
     {

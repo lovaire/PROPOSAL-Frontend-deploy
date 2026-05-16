@@ -28,6 +28,15 @@
         Distribusi Barang
       </router-link>
 
+      <router-link
+          v-if="showDistribusi && ['/distributions', '/distributions/summary' ].some((path) => route.path.includes(path))"
+          class="submenu-item"
+          to="/distributions/summary"
+          active-class="active"
+      >
+        Graph
+      </router-link>
+
       <router-link v-if="showTaxRecap" to="/tax-recap" class="menu-item">
         <span class="icon"></span>
         <span class="text">Tax Recap</span>
@@ -49,6 +58,14 @@
         active-class="active"
       >
         Menu
+      </router-link>
+
+      <router-link
+          v-if="showSales && ['/sales', '/menu'].some((path) => route.path.includes(path))"
+          class="submenu-item"
+          to="/sales/chart"
+          active-class="active"
+      >Revenue Chart
       </router-link>
 
       <router-link v-if="showInvoiceSupplier" to="/invoice-supplier" class="menu-item" active-class="active">
