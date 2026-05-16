@@ -19,7 +19,7 @@
             <option value="2026-04">Apr 2026</option>
             <option value="2026-05">May 2026</option>
           </select>
-          <button type="button" class="toolbar-btn ghost" @click="openExportModal">Export Laporan</button>
+          <button type="button" class="toolbar-btn ghost" @click="openExportModal">Export</button>
         </div>
       </div>
 
@@ -33,14 +33,18 @@
 
     <div v-if="showExportModal" class="modal-overlay" @click.self="closeExportModal">
       <div class="modal-card delete-modal">
-        <h3 class="modal-title delete-title">Export Laporan Pendapatan FnB</h3>
+        <h3 class="modal-title delete-title">Export F&B Income Report</h3>
+
+        <div v-if="exportSuccess" class="success-banner">
+          Report successfully downloaded!
+        </div>
 
         <div v-if="exportError" class="modal-error">
-          {{ exportError }}
+          Failed to download report. Please try again.
         </div>
 
         <div class="modal-field">
-          <label class="modal-label">Format Laporan</label>
+          <label class="modal-label">Report Format</label>
           <select v-model="selectedExportFormat" class="modal-input">
             <option value="pdf">PDF</option>
             <option value="csv">CSV</option>
@@ -49,10 +53,10 @@
 
         <div class="modal-actions delete-actions">
           <button type="button" class="cancel-btn" :disabled="isExporting" @click="closeExportModal">
-            Batal
+            Close
           </button>
           <button type="button" class="submit-btn" :disabled="isExporting" @click="handleExport">
-            {{ isExporting ? 'Mengunduh...' : 'Unduh Sekarang' }}
+            {{ isExporting ? 'Downloading...' : exportSuccess ? 'Download Again' : 'Download Now' }}
           </button>
         </div>
       </div>
@@ -72,6 +76,7 @@ const showExportModal = ref(false);
 const selectedExportFormat = ref('pdf');
 const isExporting = ref(false);
 const exportError = ref('');
+const exportSuccess = ref(false);
 
 const getEndOfMonth = (monthStr) => {
   const [year, month] = monthStr.split('-').map(Number);
@@ -145,6 +150,7 @@ const openExportModal = () => {
 const closeExportModal = () => {
   showExportModal.value = false;
   exportError.value = '';
+  exportSuccess.value = false;
 };
 
 const handleExport = async () => {
@@ -182,9 +188,9 @@ const handleExport = async () => {
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
 
-    closeExportModal();
+    exportSuccess.value = true;
   } catch {
-    exportError.value = 'Gagal mengunduh laporan. Silakan coba lagi.';
+    exportError.value = 'Failed to download report. Please try again.';
   } finally {
     isExporting.value = false;
   }
@@ -340,6 +346,16 @@ p {
   font-size: 13px;
   font-weight: 600;
   margin-bottom: 16px;
+}
+
+.success-banner {
+  background-color: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+  border-radius: 6px;
+  padding: 10px 14px;
+  margin-bottom: 12px;
+  font-size: 14px;
 }
 
 .modal-actions {

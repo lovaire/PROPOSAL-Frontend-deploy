@@ -24,7 +24,7 @@
             {{ loading ? 'Loading...' : 'Search' }}
           </button>
           <button class="toolbar-btn ghost" type="button" :disabled="loading" @click="resetSearch">Reset</button>
-          <button class="toolbar-btn ghost" type="button" @click="openExportModal">Export Laporan</button>
+          <button class="toolbar-btn ghost" type="button" @click="openExportModal">Export</button>
           <button class="toolbar-btn primary" type="button" @click="openAddModal">+ Add Distribusi</button>
         </div>
       </div>
@@ -154,14 +154,18 @@
 
     <div v-if="showExportModal" class="modal-overlay" @click.self="closeExportModal">
       <div class="modal-card delete-modal">
-        <h3 class="modal-title delete-title">Export Laporan Pemakaian Barang</h3>
+        <h3 class="modal-title delete-title">Export Distribution Report</h3>
+
+        <div v-if="exportSuccess" class="success-banner">
+          Report successfully downloaded!
+        </div>
 
         <div v-if="exportError" class="modal-error">
-          {{ exportError }}
+          Failed to download report. Please try again.
         </div>
 
         <div class="modal-field">
-          <label class="modal-label">Format Laporan</label>
+          <label class="modal-label">Report Format</label>
           <select v-model="selectedExportFormat" class="modal-input">
             <option value="pdf">PDF</option>
             <option value="csv">CSV</option>
@@ -169,9 +173,9 @@
         </div>
 
         <div class="modal-actions delete-actions">
-          <button class="cancel-btn" type="button" :disabled="isExporting" @click="closeExportModal">Batal</button>
+          <button class="cancel-btn" type="button" :disabled="isExporting" @click="closeExportModal">Close</button>
           <button class="submit-btn" type="button" :disabled="isExporting" @click="handleExport">
-            {{ isExporting ? 'Mengunduh...' : 'Unduh Sekarang' }}
+            {{ isExporting ? 'Downloading...' : exportSuccess ? 'Download Again' : 'Download Now' }}
           </button>
         </div>
       </div>
@@ -215,6 +219,7 @@ const showExportModal = ref(false)
 const selectedExportFormat = ref('pdf')
 const isExporting = ref(false)
 const exportError = ref('')
+const exportSuccess = ref(false)
 
 const form = ref({
   itemId: '',
@@ -498,6 +503,7 @@ const openExportModal = () => {
 const closeExportModal = () => {
   showExportModal.value = false
   exportError.value = ''
+  exportSuccess.value = false
 }
 
 const handleExport = async () => {
@@ -535,9 +541,9 @@ const handleExport = async () => {
     document.body.removeChild(link)
     URL.revokeObjectURL(url)
 
-    closeExportModal()
+    exportSuccess.value = true
   } catch {
-    exportError.value = 'Gagal mengunduh laporan. Silakan coba lagi.'
+    exportError.value = 'Failed to download report. Please try again.'
   } finally {
     isExporting.value = false
   }
@@ -848,6 +854,16 @@ onMounted(async () => {
   padding: 12px 14px;
   font-size: 13px;
   font-weight: 600;
+}
+
+.success-banner {
+  background-color: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+  border-radius: 6px;
+  padding: 10px 14px;
+  margin-bottom: 12px;
+  font-size: 14px;
 }
 
 .modal-actions {
