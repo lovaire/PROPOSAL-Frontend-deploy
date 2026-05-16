@@ -120,6 +120,33 @@
               <div v-if="formErrors.subtotal" class="field-error">{{ formErrors.subtotal }}</div>
             </div>
 
+            <div class="modal-field">
+              <label class="modal-label">Pajak (Bisa pilih beberapa)</label>
+              <div class="tax-input-container">
+                <select v-model="tempTaxSelect" class="modal-input tax-select" @change="addTax($event)">
+                  <option value="" disabled>+ Tambah Pajak...</option>
+                  <option v-for="tax in availableTaxes" :key="tax.id" :value="tax.id">
+                    {{ tax.label }}
+                  </option>
+                </select>
+                <div v-if="formErrors.taxes" class="field-error">{{ formErrors.taxes }}</div>
+
+                <div class="tax-tags-container" v-if="form.selectedTaxes.length > 0">
+                  <span v-for="(tax, index) in form.selectedTaxes" :key="index" class="tax-tag" :class="{'none-tax' : tax.type === 'none'}">
+                    {{ tax.label }}
+                    <button type="button" class="remove-tag-btn" @click.prevent="removeTax(index)">&times;</button>
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <div class="modal-field">
+              <label class="modal-label">Total Keseluruhan</label>
+              <div class="modal-input total-preview">
+                {{ formatCurrency(calculatedTotal) }}
+              </div>
+            </div>
+
             <div class="modal-field full-width">
               <label class="modal-label">Notes</label>
               <textarea
@@ -195,11 +222,28 @@ const showDeleteModal = ref(false)
 const formMode = ref('add')
 const selectedTransaction = ref(null)
 
+// KONFIGURASI LIST PAJAK (Ditambah opsi None/0%)
+const availableTaxes = [
+  { id: 'none', type: 'none', value: 0, label: '0% (Tidak ada pajak)' },
+  { id: 'ppn_10', type: 'ppn', value: 10, label: 'PPN 10%' },
+  { id: 'ppn_11', type: 'ppn', value: 11, label: 'PPN 11%' },
+  { id: 'ppn_12', type: 'ppn', value: 12, label: 'PPN 12%' },
+  { id: 'sc_5', type: 'sc', value: 5, label: 'Service Charge 5%' },
+  { id: 'sc_6', type: 'sc', value: 6, label: 'Service Charge 6%' },
+  { id: 'sc_7', type: 'sc', value: 7, label: 'Service Charge 7%' },
+  { id: 'sc_8', type: 'sc', value: 8, label: 'Service Charge 8%' },
+  { id: 'sc_9', type: 'sc', value: 9, label: 'Service Charge 9%' },
+  { id: 'sc_10', type: 'sc', value: 10, label: 'Service Charge 10%' }
+]
+const tempTaxSelect = ref('') // Untuk v-model pada dropdown sementara
+
+// STATE FORM UTAMA
 const form = ref({
   tanggal: '',
   nama: '',
   kategori: '',
   subtotal: null,
+  selectedTaxes: [], // Array untuk menyimpan objek pajak yang berbentuk tag
   catatan: ''
 })
 
@@ -207,7 +251,8 @@ const formErrors = ref({
   tanggal: '',
   nama: '',
   kategori: '',
-  subtotal: ''
+  subtotal: '',
+  taxes: '' // Ditambah untuk pesan error wajib isi pajak
 })
 
 const modalErrorMessage = ref('')
@@ -217,6 +262,48 @@ const queryParams = computed(() => ({
   startDate: startDate.value || undefined,
   endDate: endDate.value || undefined
 }))
+
+// FUNGSI LOGIKA TAGS PAJAK (Eksklusif untuk Opsi 0%)
+function addTax(event) {
+  const taxId = event.target.value;
+  if (!taxId) return;
+  
+  const taxObj = availableTaxes.find(t => t.id === taxId);
+  if (taxObj) {
+    if (taxObj.type === 'none') {
+      // Jika pilih 0%, hapus semua pajak yang lain
+      form.value.selectedTaxes = [taxObj];
+    } else {
+      // Jika pilih pajak lain, hapus opsi 'none' (0%) jika sebelumnya ada
+      form.value.selectedTaxes = form.value.selectedTaxes.filter(t => t.type !== 'none');
+      // Agar PPN/SC tidak double (jika pilih PPN 11, PPN 10 yang lama terganti otomatis)
+      form.value.selectedTaxes = form.value.selectedTaxes.filter(t => t.type !== taxObj.type);
+      form.value.selectedTaxes.push(taxObj);
+    }
+  }
+  
+  // Reset select agar menampilkan tulisan "+ Tambah Pajak..." lagi
+  tempTaxSelect.value = '';
+  // Menghilangkan pesan error otomatis saat pengguna memilih sesuatu
+  formErrors.value.taxes = '';
+}
+
+function removeTax(index) {
+  form.value.selectedTaxes.splice(index, 1);
+}
+
+// COMPUTED TOTAL PREVIEW DINAMIS DARI TAGS
+const calculatedTotal = computed(() => {
+  const sub = Number(form.value.subtotal) || 0;
+  let totalTaxNominal = 0;
+  
+  // Menjumlahkan pajak dari setiap tag yang ada
+  form.value.selectedTaxes.forEach(tax => {
+    totalTaxNominal += sub * (tax.value / 100);
+  });
+  
+  return sub + totalTaxNominal;
+})
 
 function clearErrors() {
   errorMessage.value = ''
@@ -276,9 +363,11 @@ function resetForm() {
     nama: '',
     kategori: '',
     subtotal: null,
+    selectedTaxes: [], // Kosongkan tags
     catatan: ''
   }
-  formErrors.value = { tanggal: '', nama: '', kategori: '', subtotal: '' }
+  tempTaxSelect.value = ''
+  formErrors.value = { tanggal: '', nama: '', kategori: '', subtotal: '', taxes: '' }
   modalErrorMessage.value = ''
 }
 
@@ -292,14 +381,40 @@ function openAddModal() {
 function openEditModal(tx) {
   formMode.value = 'edit'
   selectedTransaction.value = tx
+
+  // Mapping data masa lalu ke bentuk Tags kembali
+  let prevPpn = 0;
+  let prevSc = 0;
+  if (tx.subtotal && tx.subtotal > 0) {
+    if (tx.ppnAmount) prevPpn = Math.round((tx.ppnAmount / tx.subtotal) * 100);
+    if (tx.serviceChargeAmount) prevSc = Math.round((tx.serviceChargeAmount / tx.subtotal) * 100);
+  }
+
+  const initialTaxes = [];
+  if (prevPpn > 0) {
+    const ppnObj = availableTaxes.find(t => t.type === 'ppn' && t.value === prevPpn);
+    if (ppnObj) initialTaxes.push(ppnObj);
+  }
+  if (prevSc > 0) {
+    const scObj = availableTaxes.find(t => t.type === 'sc' && t.value === prevSc);
+    if (scObj) initialTaxes.push(scObj);
+  }
+  
+  // Jika transaksi tidak punya pajak sama sekali, tampilkan tag 0%
+  if (initialTaxes.length === 0) {
+    initialTaxes.push(availableTaxes.find(t => t.id === 'none'));
+  }
+
   form.value = {
     tanggal: tx.tanggal || '',
     nama: tx.nama || '',
     kategori: tx.kategori || '',
     subtotal: typeof tx.subtotal === 'number' ? tx.subtotal : Number(tx.subtotal || 0),
+    selectedTaxes: initialTaxes, // Set tag sesuai data lama
     catatan: tx.catatan || ''
   }
-  formErrors.value = { tanggal: '', nama: '', kategori: '', subtotal: '' }
+  tempTaxSelect.value = ''
+  formErrors.value = { tanggal: '', nama: '', kategori: '', subtotal: '', taxes: '' }
   modalErrorMessage.value = ''
   showFormModal.value = true
 }
@@ -311,6 +426,7 @@ function closeFormModal() {
   selectedTransaction.value = null
 }
 
+// FUNGSI YANG SEBELUMNYA HILANG KINI DITAMBAHKAN KEMBALI
 function openDeleteModal(tx) {
   selectedTransaction.value = tx
   modalErrorMessage.value = ''
@@ -320,18 +436,25 @@ function openDeleteModal(tx) {
 function closeDeleteModal() {
   if (submitting.value) return
   showDeleteModal.value = false
+  selectedTransaction.value = null
 }
 
 function validateForm() {
-  const errs = { tanggal: '', nama: '', kategori: '', subtotal: '' }
+  const errs = { tanggal: '', nama: '', kategori: '', subtotal: '', taxes: '' }
   if (!form.value.tanggal) errs.tanggal = 'Date wajib diisi.'
   if (!form.value.nama) errs.nama = 'Name wajib diisi.'
   if (!form.value.kategori) errs.kategori = 'Category wajib dipilih.'
   const subtotal = Number(form.value.subtotal)
   if (!subtotal || Number.isNaN(subtotal)) errs.subtotal = 'Subtotal wajib diisi.'
   else if (subtotal <= 0) errs.subtotal = 'Subtotal harus lebih dari 0.'
+  
+  // Validasi Tambahan: Kolom Pajak Tidak Boleh Kosong
+  if (form.value.selectedTaxes.length === 0) {
+    errs.taxes = 'Pajak wajib dipilih (Pilih 0% jika tidak ada).'
+  }
+
   formErrors.value = errs
-  return !errs.tanggal && !errs.nama && !errs.kategori && !errs.subtotal
+  return !errs.tanggal && !errs.nama && !errs.kategori && !errs.subtotal && !errs.taxes
 }
 
 async function submitForm() {
@@ -340,11 +463,14 @@ async function submitForm() {
 
   submitting.value = true
   try {
+    // TRANSLASI DARI TAGS ARRAY MENJADI DUA VARIABEL UNTUK BACKEND
     const payload = {
       tanggal: form.value.tanggal,
       nama: form.value.nama,
       kategori: form.value.kategori,
       subtotal: Number(form.value.subtotal),
+      ppnPercentage: Number(form.value.selectedTaxes.find(t => t.type === 'ppn')?.value || 0),
+      serviceChargePercentage: Number(form.value.selectedTaxes.find(t => t.type === 'sc')?.value || 0),
       catatan: form.value.catatan || ''
     }
 
@@ -520,6 +646,69 @@ onMounted(() => {
 .date-input {
   min-width: 150px;
 }
+
+.total-preview {
+  background-color: #f4f5f5;
+  display: flex;
+  align-items: center;
+  font-weight: 700;
+  color: #3f7d5c;
+  cursor: default;
+}
+
+/* STYLING MULTI-SELECT TAGS */
+.tax-input-container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.tax-tags-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 2px;
+}
+
+.tax-tag {
+  display: inline-flex;
+  align-items: center;
+  background-color: #e4efe8; /* Warna hijau subtle */
+  color: #264a35; 
+  font-size: 12px;
+  font-weight: 700;
+  padding: 5px 12px;
+  border-radius: 999px; /* Pill shape */
+  border: 1px solid #c8d8ce;
+}
+
+/* Khusus jika tag-nya 0% warnanya agak abu-abu netral */
+.tax-tag.none-tax {
+  background-color: #f4f5f5;
+  color: #5d5a57;
+  border-color: #e8e2dd;
+}
+
+.remove-tag-btn {
+  background: none;
+  border: none;
+  color: inherit;
+  margin-left: 6px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: bold;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  transition: color 0.2s ease;
+}
+
+.remove-tag-btn:hover {
+  color: #b63124; /* Merah jika dihover */
+}
+/* AKHIR STYLING MULTI-SELECT TAGS */
 
 .toolbar-btn {
   height: 44px;

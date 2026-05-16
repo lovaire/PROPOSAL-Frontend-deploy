@@ -23,7 +23,7 @@
             <th>Order Date</th>
             <th>Order Due</th>
             <th>Subtotal</th>
-            <th>PPN (11%)</th>
+            <th>PPN Nominal</th>
             <th>Total Amount</th>
             <th>Status</th>
             <th class="action-col">Action</th>
@@ -92,19 +92,30 @@
           </div>
 
           <div class="form-group">
-            <label>Pajak (PPN 11%)</label>
+            <label>Persentase PPN</label>
+            <select v-model.number="currentInvoice.ppnPercentage" class="select-input">
+              <option :value="0">0% (Tidak ada pajak)</option>
+              <option :value="10">10%</option>
+              <option :value="11">11%</option>
+              <option :value="12">12%</option>
+              <option :value="13">13%</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Nominal PPN (Otomatis)</label>
             <input 
-              :value="formatNumber(currentInvoice.taxAmount)" 
+              :value="'Rp ' + formatNumber(currentInvoice.taxAmount)" 
               type="text" 
               disabled 
               class="readonly-input"
             />
           </div>
 
-          <div class="form-group">
+          <div class="form-group full-width">
             <label>Total yang Harus Dibayar</label>
             <input 
-              :value="formatNumber(currentInvoice.amount)" 
+              :value="'Rp ' + formatNumber(currentInvoice.amount)" 
               type="text" 
               disabled 
               class="readonly-input total-highlight"
@@ -197,15 +208,19 @@ const currentInvoice = ref({
   orderDate: "",
   dueDate: "",
   subtotal: 0,
+  ppnPercentage: 0, // State baru untuk menyimpan pilihan Dropdown PPN
   taxAmount: 0,
   amount: 0,
   status: "Unpaid"
 });
 
-watch(() => currentInvoice.value.subtotal, (newSubtotal) => {
+// LOGIKA KALKULASI PAJAK DINAMIS (Memantau perubahan Subtotal ATAU Dropdown PPN)
+watch([() => currentInvoice.value.subtotal, () => currentInvoice.value.ppnPercentage], ([newSubtotal, newPpn]) => {
   const sub = parseFloat(newSubtotal) || 0;
-  currentInvoice.value.taxAmount = sub * 0.11;
-  currentInvoice.value.amount = sub + currentInvoice.value.taxAmount;
+  const ppn = parseFloat(newPpn) || 0;
+  
+  currentInvoice.value.taxAmount = sub * (ppn / 100); 
+  currentInvoice.value.amount = sub + currentInvoice.value.taxAmount; 
 });
 
 const showToast = (msg, type = "success") => {
@@ -253,11 +268,32 @@ const openModal = (invoice = null) => {
   if (invoice) {
     isEdit.value = true;
     selectedId.value = invoice.id;
-    currentInvoice.value = { ...invoice, supplierId: invoice.supplier?.id };
+    
+    // Kalkulasi balik untuk mencari tahu PPN berapa persen yang dipakai dulu
+    let prevPpn = 0;
+    if (invoice.subtotal && invoice.subtotal > 0 && invoice.taxAmount) {
+      prevPpn = Math.round((invoice.taxAmount / invoice.subtotal) * 100);
+    }
+
+    currentInvoice.value = { 
+      ...invoice,
+      supplierId: invoice.supplier?.id,
+      ppnPercentage: prevPpn // Otomatis mengisi dropdown saat edit
+    };
   } else {
     isEdit.value = false;
     selectedId.value = null;
-    currentInvoice.value = { orderName: "", supplierId: "", orderDate: "", dueDate: "", subtotal: 0, taxAmount: 0, amount: 0, status: "Unpaid" };
+    currentInvoice.value = { 
+      orderName: "", 
+      supplierId: "", 
+      orderDate: "", 
+      dueDate: "", 
+      subtotal: 0, 
+      ppnPercentage: 0, // Default 0% saat tambah baru
+      taxAmount: 0, 
+      amount: 0, 
+      status: "Unpaid" 
+    };
   }
   showModal.value = true;
 };
@@ -300,6 +336,7 @@ const handleSubmit = async () => {
     errorMessage.value = "Order name dan Supplier wajib diisi!";
     return;
   }
+
   if (!currentInvoice.value.subtotal || currentInvoice.value.subtotal <= 0) {
     errorMessage.value = "Subtotal harus lebih besar dari 0!";
     return;
