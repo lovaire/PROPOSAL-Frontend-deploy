@@ -34,3 +34,14 @@ export const exportDistributionCsv = (category = '') => {
     responseType: 'blob'
   })
 }
+
+export const getGrafik = (bulanIn, bulanOut, filter, filterValue) => api.get(`/distributions/summary`, {
+  params: {
+    bulanIn,
+    bulanOut,
+    filter,
+    filterValue
+  }
+})
+
+export const getDepartements = () => api.get(`/distributions/departments`)
