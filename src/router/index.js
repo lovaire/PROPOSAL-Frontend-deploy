@@ -2,12 +2,6 @@ import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '@/stores/profile'
 
 const routes = [
-    // {
-    //     path: '/register',
-    //     name: 'register',
-    //     component: () => import('@/views/profile/Register.vue'),
-    //     meta: { requiresAuth: true, requiresAdmin: true }
-    // },
     {
         path: '/login',
         name: 'login',
@@ -40,7 +34,7 @@ const routes = [
         path: '/supplier',
         name: 'supplier',
         component: () => import('@/views/ListSupplier.vue'),
-        meta: { requiresAuth: true, requiresInv: true }
+        meta: { requiresAuth: true }
     },
     {
         path: '/items',
@@ -52,18 +46,39 @@ const routes = [
         path: '/tax-recap',
         name: 'tax-recap',
         component: () => import('@/views/TaxRecapView.vue'),
-        meta: { requiresAuth: true, allowedRoles: ['ADMIN', 'ROLE_ADMIN', 'MANAGER', 'ROLE_MANAGER', 'admin', 'manager'] }    },
+        meta: { requiresAuth: true, allowedRoles: ['ADMIN', 'MANAJERIAL'] }    },
     {
         path: '/tax-report',
         name: 'tax-report',
         component: () => import('@/views/TaxReportView.vue'),
-        meta: { requiresAuth: true, allowedRoles: ['ADMIN', 'ROLE_ADMIN', 'MANAGER', 'ROLE_MANAGER', 'FINANCE', 'ROLE_FINANCE','ROLE_FINANCIAL','admin', 'finance', 'manager', 'Financial'] }
+        meta: { requiresAuth: true, allowedRoles: ['ADMIN', 'MANAJERIAL', 'KEUANGAN'] }
+    },
+    {
+        path: '/dashboard-roi',
+        name: 'DashboardROI',
+        component: () => import('@/views/DashboardROI.vue'), // Pastikan file view ini sudah kamu buat
+        meta: { 
+            requiresAuth: true, 
+            allowedRoles: ['ADMIN', 'MANAJERIAL'] // ROI biasanya untuk level Manager/Admin
+        }
     },
     {
         path: '/sales',
         name: 'Sales',
         component: () => import('@/views/SalesView.vue'),
         meta: { requiresAuth: true }
+    },
+    {
+        path: '/revenue-summary',
+        name: 'RevenueSummary',
+        component: () => import('@/views/RevenueSummary.vue'),
+        meta: { requiresAuth: true}
+    },
+    {
+        path: '/income-summary',
+        name: 'IncomeSummary',
+        component: () => import('@/views/IncomeSummary.vue'),
+        meta: { requiresAuth: true}
     },
     {
         path: '/menu',
@@ -122,7 +137,7 @@ router.beforeEach((to) => {
         return '/users';
     }
 
-    if (to.meta.requiresInv && normalizedRole !== 'inventory') {
+    if (to.meta.requiresInv && normalizedRole !== 'inventori') {
         return '/users';
     }
 

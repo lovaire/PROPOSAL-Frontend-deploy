@@ -70,7 +70,7 @@ import MainLayout from '@/layouts/MainLayout.vue';
 import { useAuthStore } from '@/stores/profile';
 
 const authStore = useAuthStore();
-const isAdmin = computed(() => authStore.user?.role === 'admin');
+const isAdmin = computed(() => authStore.user?.role === 'ADMIN');
 
 const sales = ref([]);
 const loading = ref(true);
@@ -78,7 +78,7 @@ const showInvoiceModal = ref(false);
 const invoiceData = ref({
   salesId: '',
   invoiceDate: new Date().toISOString().slice(0, 16),
-  paymentMethod: 'cash'
+  paymentMethod: 'CASH'
 });
 
 const fetchSales = async () => {
@@ -105,7 +105,7 @@ const closeInvoiceModal = () => {
   invoiceData.value = {
     salesId: '',
     invoiceDate: new Date().toISOString().slice(0, 16),
-    paymentMethod: 'cash'
+    paymentMethod: 'CASH'
   };
 };
 

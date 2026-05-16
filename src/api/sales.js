@@ -1,16 +1,4 @@
-import axios from 'axios';
-
-const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8080/api'
-});
-
-api.interceptors.request.use(config => {
-  const token = localStorage.getItem('token');
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-  return config;
-});
+import api from './axios';
 
 // Sales
 export const getAllSales = () => api.get('/sales');
@@ -29,3 +17,10 @@ export const createProduct = (data) => api.post('/sales/product/add', data);
 export const updateProduct = (data) => api.put('/sales/product/update', data);
 export const updateProductStatus = (id) => api.put(`/sales/product/${id}`);
 export const deleteProduct = (id) => api.delete(`/sales/product/${id}`);
+
+export const getIncomeSummary = (startDate, endDate) => {
+  const params = {};
+  if (startDate) params.startDate = startDate;
+  if (endDate) params.endDate = endDate;
+  return api.get('/fnb/income/summary', { params });
+};

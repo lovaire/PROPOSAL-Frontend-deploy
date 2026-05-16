@@ -147,9 +147,11 @@ function formatDate(date) {
 }
 
 function formatAxisDate(isoStr) {
-  // "2026-04-21" → "04/21/2026"
-  const [y, m, d] = isoStr.split('-')
-  return `${m}/${d}/${y}`
+  if (!isoStr || typeof isoStr !== 'string') return '';  // guard untuk undefined
+  const parts = isoStr.split('-');
+  if (parts.length < 3) return isoStr;
+  const [y, m, d] = parts;
+  return `${m}/${d}/${y}`;
 }
 
 function formatCurrency(val) {

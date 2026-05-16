@@ -4,7 +4,7 @@ import { authService } from '@/services/auth.service'
 
 const api = axios.create({
   // ✅ Pakai import.meta.env untuk Vite + prefix VITE_
-  baseURL: import.meta.env.VITE_API_URL || '/api',
+  baseURL: process.env.VUE_APP_API_URL || '/api',
   timeout: 20000,
   headers: {
     'Content-Type': 'application/json'
@@ -16,10 +16,6 @@ api.interceptors.request.use(
     // ✅ Daftar endpoint publik yang tidak butuh token
     const publicEndpoints = [
       '/login',
-      '/auth/login', 
-      '/register',
-      '/refresh-token',
-      '/public'
     ]
 
     // ✅ Cek apakah URL request termasuk endpoint publik
