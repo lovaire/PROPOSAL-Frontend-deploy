@@ -11,6 +11,10 @@
         User Management
       </router-link>
 
+      <router-link v-if="showDashboardROI" to="/dashboard-roi" class="menu-item" active-class="active">
+        Dashboard ROI
+      </router-link>
+
       <!-- Manager & Inventory & Admin -->
       <router-link v-if="showMasterBarang" to="/items" class="menu-item" active-class="active">
         Master Barang
@@ -25,7 +29,7 @@
       </router-link>
 
       <router-link v-if="showDistribusi" to="/distributions" class="menu-item" active-class="active">
-        Distribusi Barang
+        Distribution
       </router-link>
 
       <router-link
@@ -47,17 +51,34 @@
         <span class="text">Tax Report</span>
       </router-link>
 
-      <router-link v-if="showSales" to="/sales" class="menu-item" active-class="active">
+      <router-link to="/sales" class="menu-item" active-class="active">
         Sales
       </router-link>
 
       <router-link
-        v-if="showSales && ['/sales', '/menu'].some((path) => route.path.includes(path))"
+        v-if="['/sales', '/menu', '/income-summary'].some((path) => route.path.includes(path))"
         class="submenu-item"
         to="/menu"
         active-class="active"
       >
         Menu
+      </router-link>
+      <router-link
+        v-if="['/sales', '/menu', '/income-summary', '/revenue-summary'].some((path) => route.path.includes(path))"
+        class="submenu-item"
+        to="/revenue-summary"
+        active-class="active"
+      >
+        Revenue Summary (Kotor)
+      </router-link>
+
+      <router-link
+        v-if="['/sales', '/menu', '/income-summary'].some((path) => route.path.includes(path))"
+        class="submenu-item"
+        to="/income-summary"
+        active-class="active"
+      >
+        Summary (Income)
       </router-link>
 
       <router-link
@@ -135,8 +156,9 @@ const showTransactions = computed(() => hasRole(['admin', 'manager', 'financial'
 const showDistribusi = computed(() => hasRole(['admin', 'manager', 'inventory']));
 const showTaxRecap = computed(() => hasRole(['admin', 'manager']));
 const showTaxReport = computed(() => hasRole(['admin', 'manager', 'financial']));
-const showSales = computed(() => hasRole(['admin', 'manager', 'financial']));
+const showDashboardROI = computed(() => hasRole(['admin', 'manager']));
 const showInvoiceSupplier = computed(() => hasRole(['admin', 'financial'])); 
+
 
 // Account Modal
 const showAccountModal = ref(false);
