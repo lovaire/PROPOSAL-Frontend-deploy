@@ -1,6 +1,8 @@
 <template>
   <MainLayout>
     <section class="tax-report-page">
+      <div v-if="errorMessage" class="error-banner">{{ errorMessage }}</div>
+
       <div class="header-section">
         <h2 class="page-title">Dokumen Laporan Pajak</h2>
         <p class="page-subtitle">Buku besar rekapitulasi Dasar Pengenaan Pajak (DPP) untuk Pemasukan & Pengeluaran.</p>
@@ -11,7 +13,7 @@
           <button 
             class="toolbar-btn primary-export" 
             type="button" 
-            :disabled="loading || !transactions.length" 
+            :disabled="loading || !combinedRecords.length" 
             @click="showExportModal = true"
           >
             📥 Generate Official Report
@@ -31,7 +33,10 @@
             <input v-model="endDate" class="toolbar-input date-input" type="date" />
           </div>
           <button class="toolbar-btn secondary" type="button" :disabled="loading" @click="fetchReport">
-            {{ loading ? 'Memuat...' : 'Tarik Laporan' }}
+            {{ loading ? 'Memuat...' : 'Apply Filter' }}
+          </button>
+          <button class="toolbar-btn ghost" type="button" @click="resetFilters">
+            Reset
           </button>
         </div>
       </div>
@@ -43,18 +48,18 @@
             <tr>
               <th>No</th>
               <th>Tanggal</th>
-              <th>Keterangan Transaksi</th>
+              <th>Keterangan / Sumber Data</th>
               <th>Kategori</th>
               <th class="right-align dpp-col">DPP (Subtotal)</th>
-              <th class="right-align ppn-col">Pajak (10%)</th>
-              <th class="right-align sc-col">Service Charge (5%)</th>
+              <th class="right-align ppn-col">Total PPN</th>
+              <th class="right-align sc-col">Total Service Charge</th>
             </tr>
           </thead>
           <tbody>
-            <tr v-for="(tx, index) in transactions" :key="tx.id">
+            <tr v-for="(tx, index) in combinedRecords" :key="tx.uid">
               <td>{{ index + 1 }}</td>
               <td>{{ tx.tanggal }}</td>
-              <td>{{ tx.nama }}</td>
+              <td>{{ tx.nama }} <span v-if="tx.kategori === 'VENDOR'" class="vendor-tag">(Invoice Supplier)</span></td>
               <td>
                 <span :class="tx.kategori === 'PEMASUKAN' ? 'badge-in' : 'badge-out'">
                   {{ tx.kategori === 'PEMASUKAN' ? 'Pendapatan' : 'Beban/Pengeluaran' }}
@@ -65,30 +70,28 @@
               <td class="right-align sc-col">{{ formatCurrency(tx.serviceChargeAmount) }}</td>
             </tr>
             
-            <tr class="summary-divider" v-if="transactions.length > 0">
+            <tr class="summary-divider" v-if="combinedRecords.length > 0">
               <td colspan="7"></td>
             </tr>
-            <tr class="total-row income-total" v-if="transactions.length > 0">
-              <td colspan="4" class="right-align"><strong>TOTAL PAJAK DIPUNGUT (Dari Pendapatan):</strong></td>
+            <tr class="total-row income-total" v-if="combinedRecords.length > 0">
+              <td colspan="4" class="right-align"><strong>TOTAL PAJAK KELUARAN (Dipungut dari Pendapatan):</strong></td>
               <td class="right-align dpp-col"><strong>{{ formatCurrency(summary.incomeDPP) }}</strong></td>
               <td class="right-align ppn-col"><strong>{{ formatCurrency(summary.incomePPN) }}</strong></td>
               <td class="right-align sc-col"><strong>{{ formatCurrency(summary.incomeSC) }}</strong></td>
             </tr>
-            <tr class="total-row expense-total" v-if="transactions.length > 0">
-              <td colspan="4" class="right-align"><strong>TOTAL PAJAK DIBAYAR (Dari Pengeluaran):</strong></td>
+            <tr class="total-row expense-total" v-if="combinedRecords.length > 0">
+              <td colspan="4" class="right-align"><strong>TOTAL PAJAK MASUKAN (Dibayar dari Pengeluaran):</strong></td>
               <td class="right-align dpp-col"><strong>{{ formatCurrency(summary.expenseDPP) }}</strong></td>
               <td class="right-align ppn-col"><strong>{{ formatCurrency(summary.expensePPN) }}</strong></td>
               <td class="right-align sc-col"><strong>{{ formatCurrency(summary.expenseSC) }}</strong></td>
             </tr>
 
-            <tr v-if="transactions.length === 0">
+            <tr v-if="combinedRecords.length === 0">
               <td colspan="7" class="empty-state">Tidak ada data transaksi pada rentang waktu ini.</td>
             </tr>
           </tbody>
         </table>
       </div>
-
-      <div v-if="errorMessage" class="error-banner">{{ errorMessage }}</div>
     </section>
 
     <div v-if="showExportModal" class="modal-overlay" @click.self="showExportModal = false">
@@ -133,18 +136,17 @@
 import { onMounted, ref, computed } from 'vue'
 import MainLayout from '@/layouts/MainLayout.vue'
 import { getAllTransactions } from '@/api/transactionApi'
+import { getAllInvoices } from '@/api/invoiceSupplierApi'
 
-// PERUBAHAN DI SINI: Import eksplisit autoTable
 import jsPDF from 'jspdf'
 import autoTable from 'jspdf-autotable'
 
-const transactions = ref([])
+const combinedRecords = ref([])
 const loading = ref(false)
 const errorMessage = ref('')
 const startDate = ref('')
 const endDate = ref('')
 
-// State untuk Modal Export
 const showExportModal = ref(false)
 const exportConfig = ref({
   format: 'pdf',
@@ -155,12 +157,12 @@ const summary = computed(() => {
   let incomeDPP = 0, incomePPN = 0, incomeSC = 0;
   let expenseDPP = 0, expensePPN = 0, expenseSC = 0;
 
-  transactions.value.forEach(tx => {
+  combinedRecords.value.forEach(tx => {
     if (tx.kategori === 'PEMASUKAN') {
       incomeDPP += (tx.subtotal || 0);
       incomePPN += (tx.ppnAmount || 0);
       incomeSC += (tx.serviceChargeAmount || 0);
-    } else {
+    } else { // PENGELUARAN atau VENDOR
       expenseDPP += (tx.subtotal || 0);
       expensePPN += (tx.ppnAmount || 0);
       expenseSC += (tx.serviceChargeAmount || 0);
@@ -171,20 +173,68 @@ const summary = computed(() => {
 })
 
 async function fetchReport() {
-  loading.value = true
   errorMessage.value = ''
+  
+  // LOGIKA VALIDASI TANGGAL
+  if (startDate.value && endDate.value && startDate.value > endDate.value) {
+    errorMessage.value = 'Start Date tidak boleh lebih besar dari End Date.'
+    return
+  }
+
+  loading.value = true
   try {
     const params = {
       startDate: startDate.value || undefined,
       endDate: endDate.value || undefined
     }
-    const res = await getAllTransactions(params)
-    transactions.value = res.data?.transactions || []
+    
+    // FETCH DATA KASIR & VENDOR SEKALIGUS
+    const [transRes, vendorRes] = await Promise.all([
+      getAllTransactions(params),
+      getAllInvoices(params)
+    ])
+
+    // Normalisasi Transaksi Kasir
+    const normalizedTrans = (transRes.data?.transactions || []).map(t => ({
+      uid: `tx-${t.id}`,
+      tanggal: t.tanggal,
+      nama: t.nama,
+      kategori: t.kategori,
+      subtotal: t.subtotal || 0,
+      ppnAmount: t.ppnAmount || 0,
+      serviceChargeAmount: t.serviceChargeAmount || 0,
+      rawDate: new Date(t.tanggal)
+    }))
+
+    // Normalisasi Invoice Vendor
+    const normalizedVendor = (vendorRes.data || []).map(v => ({
+      uid: `vd-${v.id}`,
+      tanggal: v.orderDate,
+      nama: v.orderName,
+      kategori: 'VENDOR', 
+      subtotal: v.subtotal || 0,
+      ppnAmount: v.taxAmount || 0,
+      serviceChargeAmount: 0, // Vendor tidak ada service charge
+      rawDate: new Date(v.orderDate)
+    }))
+
+    // Gabungkan dan urutkan dari tanggal paling lama ke terbaru (Format Buku Besar)
+    combinedRecords.value = [...normalizedTrans, ...normalizedVendor].sort((a, b) => a.rawDate - b.rawDate)
+
   } catch (err) {
     errorMessage.value = 'Gagal mengambil laporan. Pastikan Anda memiliki hak akses.'
+    console.error(err)
   } finally {
     loading.value = false
   }
+}
+
+// FUNGSI RESET FILTER BARU
+function resetFilters() {
+  startDate.value = ''
+  endDate.value = ''
+  errorMessage.value = ''
+  fetchReport()
 }
 
 function handleExportProcess() {
@@ -201,7 +251,7 @@ function handleExportProcess() {
 }
 
 // ==========================================
-// FUNGSI GENERATOR PDF YANG SUDAH DIPERBAIKI
+// FUNGSI GENERATOR PDF 
 // ==========================================
 function generateRealPDF() {
   const doc = new jsPDF('p', 'pt', 'a4');
@@ -232,32 +282,33 @@ function generateRealPDF() {
   doc.text(`Tanggal Cetak   : ${new Date().toLocaleDateString('id-ID')}`, 40, 152);
 
   // --- 3. TABEL RINCIAN TRANSAKSI ---
-  const tableColumn = ["No", "Tanggal", "Keterangan / Nomor Bukti", "Tipe", "DPP (Subtotal)", "PPN (10%)"];
+  const tableColumn = ["No", "Tanggal", "Keterangan", "Tipe", "DPP (Subtotal)", "PPN", "Svc. Charge"];
   const tableRows = [];
 
-  transactions.value.forEach((tx, i) => {
+  combinedRecords.value.forEach((tx, i) => {
     tableRows.push([
       i + 1,
       tx.tanggal,
       tx.nama,
-      tx.kategori === 'PEMASUKAN' ? 'Pemasukan' : 'Pengeluaran',
+      tx.kategori === 'PEMASUKAN' ? 'Pendapatan' : 'Pengeluaran',
       formatCurrency(tx.subtotal || 0),
-      formatCurrency(tx.ppnAmount || 0)
+      formatCurrency(tx.ppnAmount || 0),
+      formatCurrency(tx.serviceChargeAmount || 0)
     ]);
   });
 
-  // PERUBAHAN DI SINI: Pemanggilan autoTable yang benar
   autoTable(doc, {
     startY: 170,
     head: [tableColumn],
     body: tableRows,
     theme: 'grid',
     headStyles: { fillColor: [45, 106, 79], textColor: 255 }, 
-    styles: { fontSize: 9, cellPadding: 4 },
+    styles: { fontSize: 8, cellPadding: 4 },
     alternateRowStyles: { fillColor: [249, 250, 251] },
     columnStyles: {
       4: { halign: 'right' },
-      5: { halign: 'right' }
+      5: { halign: 'right' },
+      6: { halign: 'right' }
     }
   });
 
@@ -269,20 +320,20 @@ function generateRealPDF() {
   doc.text('REKAPITULASI AKHIR:', 40, finalY);
 
   const summaryRows = [
-    ['Pajak Keluaran (Dari Pendapatan)', formatCurrency(summary.value.incomeDPP), formatCurrency(summary.value.incomePPN)],
-    ['Pajak Masukan (Dari Pengeluaran)', formatCurrency(summary.value.expenseDPP), formatCurrency(summary.value.expensePPN)]
+    ['Pajak Keluaran (Dari Pendapatan)', formatCurrency(summary.value.incomeDPP), formatCurrency(summary.value.incomePPN), formatCurrency(summary.value.incomeSC)],
+    ['Pajak Masukan (Dari Pengeluaran)', formatCurrency(summary.value.expenseDPP), formatCurrency(summary.value.expensePPN), formatCurrency(summary.value.expenseSC)]
   ];
 
-  // PERUBAHAN DI SINI JUGA
   autoTable(doc, {
     startY: finalY + 10,
-    head: [['Keterangan', 'Total DPP', 'Total Pajak']],
+    head: [['Keterangan', 'Total DPP', 'Total PPN', 'Total Svc. Charge']],
     body: summaryRows,
     theme: 'plain',
-    styles: { fontSize: 10, fontStyle: 'bold', cellPadding: 3 },
+    styles: { fontSize: 9, fontStyle: 'bold', cellPadding: 3 },
     columnStyles: {
       1: { halign: 'right' },
-      2: { halign: 'right' }
+      2: { halign: 'right' },
+      3: { halign: 'right' }
     }
   });
 
@@ -302,7 +353,7 @@ function generateRealPDF() {
   doc.text('Manajer Keuangan / Direktur', 380, finalY + 95);
 
   // --- 6. SIMPAN FILE ---
-  doc.save(`SPT_Masa_Cansebu_${startDate.value || 'All'}.pdf`);
+  doc.save(`Buku_Besar_Pajak_Cansebu_${startDate.value || 'All'}.pdf`);
 }
 
 function csvEscape(value) {
@@ -312,22 +363,22 @@ function csvEscape(value) {
 }
 
 function exportToExcelDetail() {
-  const header = ['No', 'Tanggal', 'Keterangan', 'Kategori', 'DPP (Subtotal)', 'Pajak (PPN)', 'Service Charge']
-  const rows = transactions.value.map((tx, index) => [
+  const header = ['No', 'Tanggal', 'Keterangan', 'Kategori', 'DPP (Subtotal)', 'Total PPN', 'Total Service Charge']
+  const rows = combinedRecords.value.map((tx, index) => [
     index + 1, tx.tanggal, tx.nama, tx.kategori === 'PEMASUKAN' ? 'Pendapatan' : 'Beban/Pengeluaran',
     tx.subtotal || 0, tx.ppnAmount || 0, tx.serviceChargeAmount || 0
   ])
   rows.push(['', '', '', '', '', '', '']);
-  rows.push(['', '', 'TOTAL PAJAK DIPUNGUT (PENDAPATAN)', '', summary.value.incomeDPP, summary.value.incomePPN, summary.value.incomeSC]);
-  rows.push(['', '', 'TOTAL PAJAK DIBAYAR (PENGELUARAN)', '', summary.value.expenseDPP, summary.value.expensePPN, summary.value.expenseSC]);
+  rows.push(['', '', 'TOTAL PAJAK KELUARAN (PENDAPATAN)', '', summary.value.incomeDPP, summary.value.incomePPN, summary.value.incomeSC]);
+  rows.push(['', '', 'TOTAL PAJAK MASUKAN (PENGELUARAN)', '', summary.value.expenseDPP, summary.value.expensePPN, summary.value.expenseSC]);
   downloadCSV(header, rows, `Buku_Besar_Pajak_Detail_${startDate.value || 'All'}.csv`)
 }
 
 function exportToExcelSummary() {
-  const header = ['Kategori Pajak', 'Total Dasar Pengenaan Pajak (DPP)', 'Total Pajak (PPN)', 'Total Service Charge']
+  const header = ['Kategori Pajak', 'Total Dasar Pengenaan Pajak (DPP)', 'Total PPN', 'Total Service Charge']
   const rows = [
-    ['Pajak Dipungut (Pendapatan)', summary.value.incomeDPP, summary.value.incomePPN, summary.value.incomeSC],
-    ['Pajak Dibayar (Pengeluaran)', summary.value.expenseDPP, summary.value.expensePPN, summary.value.expenseSC]
+    ['Pajak Keluaran (Pendapatan)', summary.value.incomeDPP, summary.value.incomePPN, summary.value.incomeSC],
+    ['Pajak Masukan (Pengeluaran)', summary.value.expenseDPP, summary.value.expensePPN, summary.value.expenseSC]
   ]
   downloadCSV(header, rows, `Ringkasan_Laporan_Pajak_${startDate.value || 'All'}.csv`)
 }
@@ -358,6 +409,18 @@ onMounted(() => {
 .page-title { font-size: 24px; font-weight: 800; color: #171717; margin: 0; }
 .page-subtitle { color: #6f6b68; font-size: 14px; margin-top: 4px; }
 
+/* Styling untuk Error Banner (disamakan dengan halaman lain) */
+.error-banner { 
+  background: #fff1f1; 
+  color: #b42318; 
+  border: 1px solid #f3d3d3;
+  padding: 12px 14px; 
+  border-radius: 12px; 
+  font-size: 14px;
+  font-weight: 600; 
+  margin-bottom: 5px;
+}
+
 .table-shell {
   background: #ffffff; border: 1px solid #eedfd8; border-radius: 16px;
   overflow: hidden; margin-top: 10px;
@@ -366,6 +429,7 @@ onMounted(() => {
 .transaction-table th { padding: 14px 20px; font-size: 13px; font-weight: 800; color: #5d5a57; background: #faf8f7; border-bottom: 2px solid #eedfd8;}
 .transaction-table td { padding: 14px 20px; font-size: 13px; color: #262626; border-bottom: 1px solid #f1e4df; }
 
+.vendor-tag { font-size: 10px; font-weight: 700; color: #1565c0; background: #e3f2fd; padding: 2px 6px; border-radius: 4px; margin-left: 6px;}
 .badge-in { background: #e4efe8; color: #2d6a4f; padding: 4px 10px; border-radius: 6px; font-weight: 600; font-size: 11px; }
 .badge-out { background: #fff1f1; color: #b42318; padding: 4px 10px; border-radius: 6px; font-weight: 600; font-size: 11px; }
 
@@ -393,12 +457,12 @@ onMounted(() => {
   font-size: 13px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; text-decoration: none; transition: 0.2s;
 }
 .toolbar-btn.secondary { background: #3f7d4f; color: #fff; border: none; }
+.toolbar-btn.ghost { background: #ffffff; border: 1px solid #ece6e1; color: #6f6b68; } /* Style untuk tombol reset */
 .primary-export { background: #e4efe8; color: #2d2d2d; border: 1px solid #c8d8ce;}
 .primary-export:hover:not(:disabled) { background: #c8d8ce; }
 .primary-export:disabled { opacity: 0.6; cursor: not-allowed; }
 .djp-btn { background: #fdf2cd; color: #8a6a1c; border: 1px solid #fae69e;}
 .djp-btn:hover { background: #fae69e; transform: translateY(-1px); }
-.error-banner { background: #fff1f1; color: #b42318; padding: 12px; border-radius: 10px; font-weight: 600; }
 
 /* Modal Styles */
 .modal-overlay {

@@ -54,6 +54,12 @@
       <router-link v-if="showInvoiceSupplier" to="/invoice-supplier" class="menu-item" active-class="active">
         Invoice Supplier
       </router-link>
+
+      <router-link v-if="showFinancialPerformance" to="/financial-performance" class="menu-item" active-class="active">
+          <span class="icon"></span>
+          <span class="text">Financial Performance</span>
+      </router-link>
+
     </nav>
 
     <div class="bottom-menu">
@@ -120,7 +126,7 @@ const showTaxRecap = computed(() => hasRole(['admin', 'manager']));
 const showTaxReport = computed(() => hasRole(['admin', 'manager', 'financial']));
 const showSales = computed(() => hasRole(['admin', 'manager', 'financial']));
 const showInvoiceSupplier = computed(() => hasRole(['admin', 'financial'])); 
-
+const showFinancialPerformance = computed(() => hasRole(['admin', 'manajerial', 'manager']));
 // Account Modal
 const showAccountModal = ref(false);
 const submitting = ref(false);
@@ -175,7 +181,6 @@ const logout = () => {
 </script>
 
 <style scoped>
-/* ===== STYLE SIDEBAR ===== (sama seperti sebelumnya, tidak ada perubahan) */
 .sidebar {
   width: 220px;
   min-height: 100vh;

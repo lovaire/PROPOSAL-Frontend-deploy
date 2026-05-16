@@ -69,6 +69,15 @@ const routes = [
         path: '/invoice-supplier',
         name: 'InvoiceSupplier',
         component: () => import('../views/InvoiceSupplier.vue')
+    },
+    {
+        path: '/financial-performance',
+        name: 'FinancialPerformance',
+        component: () => import('@/views/FinancialPerformanceView.vue'),
+        meta: { 
+            requiresAuth: true, 
+            allowedRoles: ['ADMIN', 'ROLE_ADMIN', 'MANAJERIAL', 'ROLE_MANAJERIAL'] 
+        }
     }
 ];
 
