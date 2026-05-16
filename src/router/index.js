@@ -27,6 +27,12 @@ const routes = [
         meta: { requiresAuth: true }
     },
     {
+        path: '/distributions/summary',
+        name: 'Distribution Summary',
+        component: () => import('@/views/DistributionSummary.vue'),
+        meta: { requiresAuth: true, allowedRoles: ['ADMIN', 'MANAJERIAL'] }
+    },
+    {
         path: '/',
         redirect: '/users'
     },
@@ -57,8 +63,8 @@ const routes = [
         path: '/dashboard-roi',
         name: 'DashboardROI',
         component: () => import('@/views/DashboardROI.vue'), // Pastikan file view ini sudah kamu buat
-        meta: { 
-            requiresAuth: true, 
+        meta: {
+            requiresAuth: true,
             allowedRoles: ['ADMIN', 'MANAJERIAL'] // ROI biasanya untuk level Manager/Admin
         }
     },

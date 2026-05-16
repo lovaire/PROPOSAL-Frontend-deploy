@@ -32,6 +32,15 @@
         Distribution
       </router-link>
 
+      <router-link
+          v-if="showDistribusi && ['/distributions', '/distributions/summary' ].some((path) => route.path.includes(path))"
+          class="submenu-item"
+          to="/distributions/summary"
+          active-class="active"
+      >
+        Graph
+      </router-link>
+
       <router-link v-if="showTaxRecap" to="/tax-recap" class="menu-item">
         <span class="icon"></span>
         <span class="text">Tax Recap</span>
@@ -47,7 +56,7 @@
       </router-link>
 
       <router-link
-        v-if="['/sales', '/menu', '/income-summary'].some((path) => route.path.includes(path))"
+        v-if="['/sales', '/menu', '/income-summary', '/revenue-summary'].some((path) => route.path.includes(path))"
         class="submenu-item"
         to="/menu"
         active-class="active"
@@ -64,7 +73,7 @@
       </router-link>
 
       <router-link
-        v-if="['/sales', '/menu', '/income-summary'].some((path) => route.path.includes(path))"
+        v-if="['/sales', '/menu', '/income-summary', '/revenue-summary'].some((path) => route.path.includes(path))"
         class="submenu-item"
         to="/income-summary"
         active-class="active"
