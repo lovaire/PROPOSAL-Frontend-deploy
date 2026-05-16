@@ -29,7 +29,7 @@
       </router-link>
 
       <router-link v-if="showDistribusi" to="/distributions" class="menu-item" active-class="active">
-        Distribusi Barang
+        Distribution
       </router-link>
 
       <router-link v-if="showTaxRecap" to="/tax-recap" class="menu-item">

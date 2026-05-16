@@ -24,3 +24,26 @@ export const getIncomeSummary = (startDate, endDate) => {
   if (endDate) params.endDate = endDate;
   return api.get('/fnb/income/summary', { params });
 };
+
+// Export laporan pendapatan FnB - PDF
+// startDate dan endDate: string format 'yyyy-MM-dd' atau null/undefined
+export const exportSalesPdf = (startDate, endDate) => {
+  const params = {};
+  if (startDate) params.startDate = startDate;
+  if (endDate) params.endDate = endDate;
+  return api.get('/sales/export/pdf', {
+    params,
+    responseType: 'blob'
+  });
+};
+
+// Export laporan pendapatan FnB - CSV
+export const exportSalesCsv = (startDate, endDate) => {
+  const params = {};
+  if (startDate) params.startDate = startDate;
+  if (endDate) params.endDate = endDate;
+  return api.get('/sales/export/csv', {
+    params,
+    responseType: 'blob'
+  });
+};

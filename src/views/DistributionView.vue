@@ -24,6 +24,7 @@
             {{ loading ? 'Loading...' : 'Search' }}
           </button>
           <button class="toolbar-btn ghost" type="button" :disabled="loading" @click="resetSearch">Reset</button>
+          <button class="toolbar-btn ghost" type="button" @click="openExportModal">Export</button>
           <button class="toolbar-btn primary" type="button" @click="openAddModal">+ Add Distribusi</button>
         </div>
       </div>
@@ -150,6 +151,35 @@
         </div>
       </div>
     </div>
+
+    <div v-if="showExportModal" class="modal-overlay" @click.self="closeExportModal">
+      <div class="modal-card delete-modal">
+        <h3 class="modal-title delete-title">Export Distribution Report</h3>
+
+        <div v-if="exportSuccess" class="success-banner">
+          Report successfully downloaded!
+        </div>
+
+        <div v-if="exportError" class="modal-error">
+          Failed to download report. Please try again.
+        </div>
+
+        <div class="modal-field">
+          <label class="modal-label">Report Format</label>
+          <select v-model="selectedExportFormat" class="modal-input">
+            <option value="pdf">PDF</option>
+            <option value="csv">CSV</option>
+          </select>
+        </div>
+
+        <div class="modal-actions delete-actions">
+          <button class="cancel-btn" type="button" :disabled="isExporting" @click="closeExportModal">Close</button>
+          <button class="submit-btn" type="button" :disabled="isExporting" @click="handleExport">
+            {{ isExporting ? 'Downloading...' : exportSuccess ? 'Download Again' : 'Download Now' }}
+          </button>
+        </div>
+      </div>
+    </div>
   </MainLayout>
 </template>
 
@@ -157,7 +187,14 @@
 import { computed, onMounted, ref, watch } from 'vue'
 import MainLayout from '../layouts/MainLayout.vue'
 import { getAllItems } from '../api/itemApi'
-import { createDistribution, deleteDistribution, getDistributions, updateDistribution } from '../api/distributionApi'
+import {
+  createDistribution,
+  deleteDistribution,
+  exportDistributionCsv,
+  exportDistributionPdf,
+  getDistributions,
+  updateDistribution
+} from '../api/distributionApi'
 
 const loading = ref(false)
 const submitting = ref(false)
@@ -176,6 +213,13 @@ const showDeleteModal = ref(false)
 const distributionToDelete = ref(null)
 const deleting = ref(false)
 const deleteErrorMessage = ref('')
+
+// Export modal state
+const showExportModal = ref(false)
+const selectedExportFormat = ref('pdf')
+const isExporting = ref(false)
+const exportError = ref('')
+const exportSuccess = ref(false)
 
 const form = ref({
   itemId: '',
@@ -447,6 +491,61 @@ async function confirmDelete() {
     deleteErrorMessage.value = getDeleteErrorMessage(err)
   } finally {
     deleting.value = false
+  }
+}
+
+const openExportModal = () => {
+  selectedExportFormat.value = 'pdf'
+  exportError.value = ''
+  showExportModal.value = true
+}
+
+const closeExportModal = () => {
+  showExportModal.value = false
+  exportError.value = ''
+  exportSuccess.value = false
+}
+
+const handleExport = async () => {
+  isExporting.value = true
+  exportError.value = ''
+  try {
+    const categoryFilter = ''
+
+    let response
+    let filename
+
+    if (selectedExportFormat.value === 'pdf') {
+      response = await exportDistributionPdf(categoryFilter)
+      filename = categoryFilter
+        ? `laporan-pemakaian-barang-${categoryFilter.toLowerCase().replace(/\s+/g, '-')}.pdf`
+        : 'laporan-pemakaian-barang.pdf'
+    } else {
+      response = await exportDistributionCsv(categoryFilter)
+      filename = categoryFilter
+        ? `laporan-pemakaian-barang-${categoryFilter.toLowerCase().replace(/\s+/g, '-')}.csv`
+        : 'laporan-pemakaian-barang.csv'
+    }
+
+    const blob = new Blob([response.data], {
+      type: selectedExportFormat.value === 'pdf'
+        ? 'application/pdf'
+        : 'text/csv;charset=utf-8;'
+    })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.setAttribute('download', filename)
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    URL.revokeObjectURL(url)
+
+    exportSuccess.value = true
+  } catch {
+    exportError.value = 'Failed to download report. Please try again.'
+  } finally {
+    isExporting.value = false
   }
 }
 
@@ -755,6 +854,16 @@ onMounted(async () => {
   padding: 12px 14px;
   font-size: 13px;
   font-weight: 600;
+}
+
+.success-banner {
+  background-color: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+  border-radius: 6px;
+  padding: 10px 14px;
+  margin-bottom: 12px;
+  font-size: 14px;
 }
 
 .modal-actions {
