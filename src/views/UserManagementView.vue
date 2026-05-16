@@ -192,7 +192,7 @@ const openUpdateModal = (user) => {
   editForm.value = {
     username: user.username || "",
     password: "",
-    role: (user.role || "ADMIN").toLowerCase(),
+    role: user.role || "ADMIN",
   };
   showUpdateModal.value = true;
 };

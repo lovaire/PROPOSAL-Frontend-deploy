@@ -33,7 +33,7 @@
             <input v-model="endDate" class="toolbar-input date-input" type="date" />
           </div>
           <button class="toolbar-btn secondary" type="button" :disabled="loading" @click="fetchReport">
-            {{ loading ? 'Memuat...' : 'Apply Filter' }}
+            {{ loading ? 'Memuat...' : 'Apply' }}
           </button>
           <button class="toolbar-btn ghost" type="button" @click="resetFilters">
             Reset

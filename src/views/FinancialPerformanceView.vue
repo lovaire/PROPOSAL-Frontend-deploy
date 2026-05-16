@@ -22,7 +22,7 @@
             <input v-model="endDate" class="toolbar-input" type="date" />
           </div>
           <button class="toolbar-btn secondary" :disabled="loading" @click="fetchData">
-            {{ loading ? 'Memuat...' : 'Terapkan' }}
+            {{ loading ? 'Memuat...' : 'Apply' }}
           </button>
           <button class="toolbar-btn ghost" @click="resetFilters">Reset</button>
         </div>
@@ -127,7 +127,6 @@ const maxVal = ref(1)
 
 async function fetchData() {
   errorMessage.value = ''
-  // Validasi agar Start Date tidak boleh melompati End Date
   if (startDate.value && endDate.value && startDate.value > endDate.value) {
     errorMessage.value = 'Start Date tidak boleh lebih besar dari End Date.'
     return
@@ -146,7 +145,6 @@ async function fetchData() {
     summaryData.value = res.data
     chartRecords.value = res.data.chartData || []
 
-    // Cari batas atas tertinggi agar proporsi kalkulasi tinggi batang CSS akurat (tidak pecah layout)
     let highest = 0
     chartRecords.value.forEach(r => {
       const maxInRow = Math.max(Number(r.pemasukan), Number(r.pengeluaran), Math.abs(Number(r.keuntungan)))
@@ -163,8 +161,9 @@ async function fetchData() {
 }
 
 function getBarHeight(value) {
-  const pct = (Number(value) / maxVal.value) * 100
-  return `${Math.max(pct, 2)}%` // Jaminan minimal tinggi 2% agar tetap tampak garis tipis jika nominal sangat kecil
+  // Pengali diubah menjadi 75 agar menyisakan ruang kosong 25% di atap kontainer untuk tempat tooltip
+  const pct = (Number(value) / maxVal.value) * 75
+  return `${Math.max(pct, 2)}%`
 }
 
 function resetFilters() {
@@ -219,19 +218,46 @@ onMounted(fetchData)
 
 .chart-section { background: white; border: 1px solid #eedfd8; border-radius: 22px; padding: 32px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02); }
 .chart-title { font-size: 18px; font-weight: 800; color: #171717; margin-bottom: 30px; }
-.chart-wrapper { min-height: 340px; display: flex; justify-content: center; align-items: center; }
+.chart-wrapper { min-height: 380px; display: flex; justify-content: center; align-items: center; }
 .chart-state { color: #8e8a86; font-size: 15px; font-weight: 600; }
 
-/* REVISI TOTAL CSS: Grafik Batang Polos & Rata Baseline */
 .bar-chart-container { width: 100%; display: flex; flex-direction: column; gap: 24px; }
-.chart-bars { display: flex; justify-content: space-around; align-items: flex-end; height: 280px; border-bottom: 2px solid #e8e2dd; padding-bottom: 12px; }
-.chart-column { display: flex; flex-direction: column; align-items: center; flex: 1; height: 100%; justify-content: flex-end; gap: 14px; position: relative;}
-.bar-group { display: flex; align-items: flex-end; gap: 8px; height: 100%; width: 100%; justify-content: center; position: relative;}
 
-.bar { width: 24px; border-radius: 6px 6px 0 0; transition: all 0.3s ease; cursor: pointer; position: relative; }
+/* REVISI CSS UTAMA: Hibrida Elastis & Mendukung Scroll Samping */
+.chart-bars { 
+  display: flex; 
+  justify-content: space-around; 
+  align-items: flex-end; 
+  height: 340px; 
+  border-bottom: 2px solid #e8e2dd; 
+  padding: 0 24px 12px 24px; 
+  overflow-x: auto; 
+  gap: 10px;
+}
+
+/* Custom Scrollbar Ramping Estetik */
+.chart-bars::-webkit-scrollbar { height: 7px; }
+.chart-bars::-webkit-scrollbar-track { background: #fcfbfa; border-radius: 10px; }
+.chart-bars::-webkit-scrollbar-thumb { background: #dcd7d2; border-radius: 10px; }
+.chart-bars::-webkit-scrollbar-thumb:hover { background: #b0aba5; }
+
+.chart-column { 
+  display: flex; 
+  flex-direction: column; 
+  align-items: center; 
+  flex: 1; 
+  min-width: 110px; 
+  max-width: 180px; 
+  height: 100%; 
+  justify-content: flex-end; 
+  gap: 14px; 
+  position: relative;
+}
+
+.bar-group { display: flex; align-items: flex-end; gap: 8px; height: 100%; width: 100%; justify-content: center; position: relative;}
+.bar { width: 22px; border-radius: 5px 5px 0 0; transition: all 0.3s ease; cursor: pointer; position: relative; }
 .bar:hover { filter: brightness(0.85); z-index: 10; }
 
-/* STYLING TOOLTIP BOX DETIL ARUS PER MODUL */
 .tooltip { 
   visibility: hidden; width: 230px; background-color: rgba(23, 23, 23, 0.96); color: #fff; 
   text-align: left; border-radius: 10px; padding: 12px 14px; position: absolute; 
@@ -248,7 +274,7 @@ onMounted(fetchData)
 .bar-in { background-color: #4caf50; }
 .bar-out { background-color: #ef5350; }
 .bar-prof { background-color: #42a5f5; }
-.bar-prof.bar-neg { background-color: #ff9800; } /* Tetap kokoh berdiri rata di baseline, tidak melayang lagi */
+.bar-prof.bar-neg { background-color: #ff9800; } 
 
 .column-label { font-size: 13px; font-weight: 700; color: #5d5a57; white-space: nowrap; }
 
@@ -260,11 +286,46 @@ onMounted(fetchData)
 .dot-prof { background: #42a5f5; }
 .dot-neg { background: #ff9800; }
 
+/* ========================================================
+   SMART TOOLTIP POSITIONING (ANTI-TERPOTONG DI TEPI)
+   ======================================================== */
+
+/* 1. Kolom Paling Kiri: Tooltip bergeser aman ke kanan */
+.chart-column:first-child .tooltip {
+  left: -15px;
+  transform: none;
+}
+.chart-column:first-child .tooltip::after {
+  left: 26px;
+}
+
+/* 2. Kolom Paling Kanan: Tooltip bergeser aman ke kiri */
+.chart-column:last-child .tooltip {
+  left: auto;
+  right: -15px;
+  transform: none;
+}
+.chart-column:last-child .tooltip::after {
+  left: auto;
+  right: 26px;
+  margin-left: 0;
+}
+
+/* 3. Balikan normal jika data hanya me-return 1 bulan saja */
+.chart-column:only-child .tooltip {
+  left: 50%;
+  right: auto;
+  transform: translateX(-50%);
+}
+.chart-column:only-child .tooltip::after {
+  left: 50%;
+  right: auto;
+  margin-left: -6px;
+}
+
 @media (max-width: 960px) {
   .summary-grid { grid-template-columns: 1fr; }
   .toolbar { flex-direction: column; align-items: stretch; }
   .toolbar-right { flex-direction: column; align-items: stretch; }
-  .chart-bars { overflow-x: auto; justify-content: flex-start; gap: 30px; }
-  .chart-column { min-width: 110px; }
 }
 </style>

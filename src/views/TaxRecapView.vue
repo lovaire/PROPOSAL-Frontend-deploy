@@ -34,7 +34,7 @@
           </div>
 
           <button class="toolbar-btn secondary" type="button" :disabled="loading" @click="fetchData">
-            {{ loading ? 'Loading...' : 'Apply Filter' }}
+            {{ loading ? 'Loading...' : 'Apply' }}
           </button>
           
           <button class="toolbar-btn ghost" type="button" @click="resetFilters">Reset</button>
