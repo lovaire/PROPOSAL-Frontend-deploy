@@ -75,12 +75,6 @@ const routes = [
         meta: { requiresAuth: true }
     },
     {
-        path: '/sales/chart',
-        name: 'Sales Chart',
-        component: () => import('@/views/SalesChart.vue'),
-        meta: { requiresAuth: true }
-    },
-    {
         path: '/revenue-summary',
         name: 'RevenueSummary',
         component: () => import('@/views/RevenueSummary.vue'),

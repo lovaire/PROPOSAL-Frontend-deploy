@@ -56,7 +56,7 @@
       </router-link>
 
       <router-link
-        v-if="['/sales', '/menu', '/income-summary'].some((path) => route.path.includes(path))"
+        v-if="['/sales', '/menu', '/income-summary', '/revenue-summary'].some((path) => route.path.includes(path))"
         class="submenu-item"
         to="/menu"
         active-class="active"
@@ -73,20 +73,12 @@
       </router-link>
 
       <router-link
-        v-if="['/sales', '/menu', '/income-summary'].some((path) => route.path.includes(path))"
+        v-if="['/sales', '/menu', '/income-summary', '/revenue-summary'].some((path) => route.path.includes(path))"
         class="submenu-item"
         to="/income-summary"
         active-class="active"
       >
         Summary (Income)
-      </router-link>
-
-      <router-link
-          v-if="showSales && ['/sales', '/menu'].some((path) => route.path.includes(path))"
-          class="submenu-item"
-          to="/sales/chart"
-          active-class="active"
-      >Revenue Chart
       </router-link>
 
       <router-link v-if="showInvoiceSupplier" to="/invoice-supplier" class="menu-item" active-class="active">

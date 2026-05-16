@@ -19,7 +19,6 @@ const fetchRevenueData = async (firstDate, lastDate) => {
     return `${yyyy}-${mm}-${dd}T00:00:00`;
   };
   const response = await getPerfSales(toLocalDateTime(firstDate), toLocalDateTime(lastDate));
-  // Response dari backend: { tanggal: "2026-04-20", total: 86000 }
   return response.data.data.map(item => ({
     tanggal: item.tanggal,
     total: item.total
