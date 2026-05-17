@@ -35,8 +35,8 @@
             <td>{{ sale.status }}</td>
             <td class="action-buttons">
               <button class="update-btn" @click="openDetailModal(sale)">Detail</button>
-              <button class="update-btn" @click="openEditModal(sale)">Edit</button>
-              <button class="delete-btn" @click="openInvoiceModal(sale)">Buat Invoice</button>
+              <button v-if="sale.status !== 'PAID'" class="update-btn" @click="openEditModal(sale)">Edit</button>
+              <button class="delete-btn" @click="openInvoiceModal(sale)">Create Invoice</button>
             </td>
           </tr>
         </tbody>
@@ -136,11 +136,11 @@
     <!-- Modal Invoice -->
     <div v-if="showInvoiceModal" class="modal-overlay" @click.self="closeInvoiceModal">
       <div class="modal-box">
-        <h2>Buat Invoice</h2>
+        <h2>Create Invoice</h2>
         <div class="modal-content">
-          <label>Tanggal Invoice</label>
+          <label>Invoice Date</label>
           <input type="datetime-local" v-model="invoiceData.invoiceDate" />
-          <label>Metode Pembayaran</label>
+          <label>Payment Method</label>
           <select v-model="invoiceData.paymentMethod">
             <option value="CASH">Cash</option>
             <option value="DEBIT">Debit</option>

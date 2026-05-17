@@ -11,10 +11,6 @@
         User Management
       </router-link>
 
-      <router-link v-if="showDashboardROI" to="/dashboard-roi" class="menu-item" active-class="active">
-        Dashboard ROI
-      </router-link>
-
       <!-- Manager & Inventory & Admin -->
       <router-link v-if="showMasterBarang" to="/items" class="menu-item" active-class="active">
         Item Master
@@ -83,6 +79,10 @@
 
       <router-link v-if="showInvoiceSupplier" to="/invoice-supplier" class="menu-item" active-class="active">
         Invoice Supplier
+      </router-link>
+
+      <router-link v-if="showDashboardROI" to="/dashboard-roi" class="menu-item" active-class="active">
+        Dashboard ROI
       </router-link>
 
       <router-link v-if="showFinancialPerformance" to="/financial-performance" class="menu-item" active-class="active">

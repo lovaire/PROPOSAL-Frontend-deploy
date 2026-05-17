@@ -33,7 +33,7 @@
             <td class="action-buttons">
               <router-link :to="`/sales/${sale.id}`" class="update-btn">Detail</router-link>
               <router-link :to="`/sales/${sale.id}/edit`" class="update-btn">Edit</router-link>
-              <button @click="openInvoiceModal(sale)" class="delete-btn">Buat Invoice</button>
+              <button @click="openInvoiceModal(sale)" class="delete-btn">Create Invoice</button>
             </td>
            </tr>
         </tbody>
@@ -43,10 +43,10 @@
     <!-- Modal Invoice -->
     <div v-if="showInvoiceModal" class="modal-overlay">
       <div class="modal-box">
-        <h2>Buat Invoice</h2>
-        <label>Tanggal Invoice</label>
+        <h2>Create Invoice</h2>
+        <label>Invoice Date</label>
         <input type="datetime-local" v-model="invoiceData.invoiceDate" />
-        <label>Metode Pembayaran</label>
+        <label>Payment Method</label>
         <select v-model="invoiceData.paymentMethod">
           <option value="CASH">Cash</option>
           <option value="DEBIT">Debit</option>
