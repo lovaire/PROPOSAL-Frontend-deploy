@@ -47,7 +47,7 @@
         <span class="text">Tax Report</span>
       </router-link>
 
-      <router-link to="/sales" class="menu-item" active-class="active">
+      <router-link v-if="showSales" to="/sales" class="menu-item" active-class="active">
         Sales
       </router-link>
 
