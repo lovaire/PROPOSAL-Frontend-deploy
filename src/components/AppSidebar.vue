@@ -148,16 +148,16 @@ const hasRole = (roles) => roles.includes(userRole.value);
 
 // Mapping role ke menu
 const isAdmin = computed(() => userRole.value === 'admin');
-const showMasterBarang = computed(() => hasRole(['admin', 'manajerial', 'inventori']));
+const showMasterBarang = computed(() => hasRole(['admin', 'inventori']));
 const showListSupplier = computed(() => hasRole(['admin', 'inventori']));
 const showTransactions = computed(() => hasRole(['admin', 'manajerial', 'keuangan']));
-const showDistribusi = computed(() => hasRole(['admin', 'manajerial', 'inventori']));
+const showDistribusi = computed(() => hasRole(['admin', 'inventori']));
 const showTaxRecap = computed(() => hasRole(['admin', 'manajerial']));
 const showTaxReport = computed(() => hasRole(['admin', 'manajerial', 'keuangan']));
-const showSales = computed(() => hasRole(['admin', 'manajerial', 'keuangan']));
+const showSales = computed(() => hasRole(['admin', 'keuangan']));
 const showDashboardROI = computed(() => hasRole(['admin', 'manajerial']));
 const showInvoiceSupplier = computed(() => hasRole(['admin', 'keuangan']));
-const showFinancialPerformance = computed(() => hasRole(['admin', 'manajerial']));
+const showFinancialPerformance = computed(() => hasRole(['admin', 'manajerial', 'keuangan']));
 // Account Modal
 const showAccountModal = ref(false);
 const submitting = ref(false);
