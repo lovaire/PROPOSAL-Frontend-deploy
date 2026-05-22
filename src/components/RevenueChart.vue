@@ -1,5 +1,4 @@
 <template>
-  <div class="bg-white border-2 border-brand-peach p-4 rounded-xl">
     <!-- Header -->
     <div class="flex items-start justify-between mb-5">
       <div class="block my-1 font-semibold text-amber-900">
@@ -104,7 +103,6 @@
         <span class="text-sm font-semibold">{{ chartData.length }}</span>
       </div>
     </div>
-  </div>
 </template>
 
 <script setup>

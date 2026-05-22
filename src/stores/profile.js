@@ -19,8 +19,8 @@ export const useAuthStore = defineStore('auth', () => {
 
     const cleanRole = (role) => {
         if (!role) return '';
-        let cleaned = role.toLowerCase();
-        if (cleaned.startsWith('role_')) {
+        let cleaned = role.toUpperCase();
+        if (cleaned.startsWith('ROLE_')) {
             cleaned = cleaned.substring(5);
         }
         return cleaned;

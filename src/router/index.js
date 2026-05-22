@@ -12,7 +12,7 @@ const routes = [
         path: '/users',
         name: 'users',
         component: () => import('@/views/UserManagementView.vue'),
-        meta: { requiresAuth: true }
+        meta: { requiresAuth: true, allowedRoles: ['ROLE_ADMIN'] }
     },
     {
         path: '/transactions',
@@ -30,7 +30,7 @@ const routes = [
         path: '/distributions/summary',
         name: 'Distribution Summary',
         component: () => import('@/views/DistributionSummary.vue'),
-        meta: { requiresAuth: true, allowedRoles: ['ADMIN', 'MANAJERIAL'] }
+        meta: { requiresAuth: true, allowedRoles: ['ROLE_ADMIN', 'ROLE_MANAJERIAL'] }
     },
     {
         path: '/',
@@ -52,20 +52,20 @@ const routes = [
         path: '/tax-recap',
         name: 'tax-recap',
         component: () => import('@/views/TaxRecapView.vue'),
-        meta: { requiresAuth: true, allowedRoles: ['ADMIN', 'MANAJERIAL'] }    },
+        meta: { requiresAuth: true, allowedRoles: ['ROLE_ADMIN', 'ROLE_MANAJERIAL'] }    },
     {
         path: '/tax-report',
         name: 'tax-report',
         component: () => import('@/views/TaxReportView.vue'),
-        meta: { requiresAuth: true, allowedRoles: ['ADMIN', 'MANAJERIAL', 'KEUANGAN'] }
+        meta: { requiresAuth: true, allowedRoles: ['ROLE_ADMIN', 'ROLE_MANAJERIAL', 'ROLE_KEUANGAN'] }
     },
     {
         path: '/dashboard-roi',
         name: 'DashboardROI',
-        component: () => import('@/views/DashboardROI.vue'), // Pastikan file view ini sudah kamu buat
+        component: () => import('@/views/DashboardROI.vue'),
         meta: {
             requiresAuth: true,
-            allowedRoles: ['ADMIN', 'MANAJERIAL'] // ROI biasanya untuk level Manager/Admin
+            allowedRoles: ['ROLE_ADMIN', 'ROLE_MANAJERIAL']
         }
     },
     {
@@ -103,9 +103,9 @@ const routes = [
         component: () => import('@/views/FinancialPerformanceView.vue'),
         meta: { 
             requiresAuth: true, 
-            allowedRoles: ['ADMIN', 'ROLE_ADMIN', 'MANAJERIAL', 'ROLE_MANAJERIAL'] 
+            allowedRoles: ['ROLE_ADMIN', 'ROLE_MANAJERIAL']
         }
-    }
+    },
 ];
 
 const router = createRouter({
