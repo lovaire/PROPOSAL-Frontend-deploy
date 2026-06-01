@@ -47,3 +47,12 @@ export const exportSalesCsv = (startDate, endDate) => {
     responseType: 'blob'
   });
 };
+
+// src/api/sales.js
+export const getMenuPerformance = (startDate, endDate, productIds = []) => {
+  const params = {};
+  if (startDate) params.startDate = startDate;
+  if (endDate) params.endDate = endDate;
+  if (productIds.length) params.productIds = productIds.join(',');
+  return api.get('/menu/performance', { params });
+};

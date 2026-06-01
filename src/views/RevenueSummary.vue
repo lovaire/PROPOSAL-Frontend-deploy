@@ -1,7 +1,10 @@
 <template>
   <MainLayout>
-    <div class="revenue-page">
-      <RevenueChart :fetch-fn="fetchRevenueData" />
+    <div class="flex flex-col w-full h-5/6 items-stretch border border-amber-500 rounded-xl px-4 py-3 bg-white gap-1">
+      <RevenueChart
+          class="flex-1"
+          :fetch-fn="fetchRevenueData"
+      />
     </div>
   </MainLayout>
 </template>

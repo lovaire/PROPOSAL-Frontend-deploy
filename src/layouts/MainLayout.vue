@@ -1,16 +1,22 @@
 <template>
-  <div class="layout">
-    <AppSidebar />
-    <main class="content">
-      <header class="topbar">
-        <div class="topbar-left">
-          <div class="app-title">SiCansebu</div>
+  <div class="flex h-screen w-screen bg-gray-50">
+    <AppSidebar v-if="showAside" v-model:show="showAside"/>
+    <main class="flex flex-col flex-1 overflow-y-scroll m-2 gap-2">
+      <header class="flex justify-between items-center border border-brand-peach rounded-xl h-[7%] px-4 bg-white">
+        <div class="flex gap-2">
+          <div class="rounded-xl cursor-pointer bg-white opacity-25 bg-opacity-0 hover:opacity-100" @click="openAside" v-if="!showAside">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+              <path stroke-linecap="round" stroke-linejoin="round" d="m5.25 4.5 7.5 7.5-7.5 7.5m6-15 7.5 7.5-7.5 7.5" />
+            </svg>
+          </div>
+          <div>
+            <div class="text-lg font-extrabold text-red-700">SiCansebu</div>
+          </div>
         </div>
-        <div class="user-menu" v-if="authStore.user">
-          <span class="user-text">{{ authStore.user.username }} ({{ authStore.user.role }})</span>
+        <div v-if="authStore.user">
+          <span class="text-sm font-semibold text-gray-700">{{ authStore.user.username }} ({{ authStore.user.role }})</span>
         </div>
       </header>
-
       <slot />
     </main>
   </div>
@@ -19,8 +25,20 @@
 <script setup>
 import AppSidebar from '../components/AppSidebar.vue'
 import { useAuthStore } from '@/stores/profile'
+import {ref} from "vue";
 
 const authStore = useAuthStore()
+
+// Aside
+const showAside = ref(true)
+
+const openAside = () => {
+  showAside.value = true
+}
+
+  // const closeAside = () => {
+  //   showAside.value = false;
+  // }
 </script>
 
 <style scoped>
