@@ -20,10 +20,6 @@
         User Management
       </router-link>
 
-      <router-link v-if="isAdmin || isManajerial" to="/dashboard-roi" class="menu-item" active-class="active">
-        Dashboard ROI
-      </router-link>
-
       <!-- Manager & Inventory & Admin -->
       <router-link v-if="isAdmin || isManajerial || isInventori" to="/items" class="menu-item" active-class="active">
         Item Master
@@ -47,7 +43,7 @@
           to="/distributions/summary"
           active-class="active"
       >
-        Summary
+        Distribution Summary
       </router-link>
 
       <router-link v-if="isAdmin || isManajerial" to="/tax-recap" class="menu-item">
@@ -104,6 +100,10 @@
       <router-link v-if="isAdmin || isManajerial" to="/financial-performance" class="menu-item" active-class="active">
         <span class="icon"></span>
         <span class="text">Financial Performance</span>
+      </router-link>
+
+      <router-link v-if="isAdmin || isManajerial" to="/dashboard-roi" class="menu-item" active-class="active">
+        Dashboard ROI
       </router-link>
     </nav>
 
