@@ -42,7 +42,7 @@
       </router-link>
 
       <router-link
-          v-if="isAdmin || isManajerial && ['/distributions', '/distributions/summary' ].some((path) => route.path.includes(path))"
+          v-if="(isAdmin || isManajerial) && ['/distributions', '/distributions/summary' ].some((path) => route.path.includes(path))"
           class="submenu-item"
           to="/distributions/summary"
           active-class="active"
@@ -65,7 +65,7 @@
       </router-link>
 
       <router-link
-          v-if="(isAdmin || isManajerial || isKeuangan) && ['/sales', '/menu', '/income-summary', '/revenue-summary'].some((path) => route.path.includes(path))"
+          v-if="(isAdmin || isManajerial || isKeuangan) && ['/sales', '/menu', '/income-summary', '/revenue-summary', '/menu-performance'].some((path) => route.path.includes(path))"
           class="submenu-item"
           to="/menu"
           active-class="active"
@@ -73,7 +73,7 @@
         Menu
       </router-link>
       <router-link
-          v-if="(isAdmin || isManajerial || isKeuangan) && ['/sales', '/menu', '/income-summary', '/revenue-summary'].some((path) => route.path.includes(path))"
+          v-if="(isAdmin || isManajerial || isKeuangan) && ['/sales', '/menu', '/income-summary', '/revenue-summary', '/menu-performance'].some((path) => route.path.includes(path))"
           class="submenu-item"
           to="/revenue-summary"
           active-class="active"
@@ -82,21 +82,20 @@
       </router-link>
 
       <router-link
-          v-if="isAdmin || isManajerial && ['/sales', '/menu', '/income-summary', '/revenue-summary'].some((path) => route.path.includes(path))"
+          v-if="(isAdmin || isManajerial) && ['/sales', '/menu', '/income-summary', '/revenue-summary', '/menu-performance'].some((path) => route.path.includes(path))"
           class="submenu-item"
           to="/income-summary"
           active-class="active"
       >
         Income Summary
       </router-link>
-      <router-link 
-          v-if="isAdmin || isManajerial && ['/sales', '/menu', '/income-summary', '/revenue-summary'].some((path) => route.path.includes(path))"
-          to="/menu-performance" 
+
+      <router-link
+          v-if="(isAdmin || isManajerial) && ['/sales', '/menu', '/income-summary', '/revenue-summary', '/menu-performance'].some((path) => route.path.includes(path))"
+          to="/menu-performance"
           class="submenu-item"
           active-class="active"
-      >
-        Menu Performance
-      </router-link>
+      >Menu Performance</router-link>
 
       <router-link v-if="isAdmin || isKeuangan" to="/invoice-supplier" class="menu-item" active-class="active">
         Invoice Supplier
