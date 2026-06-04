@@ -4,17 +4,17 @@
 
     <div class="filters-card">
       <div class="filter-group">
-        <label>Periode Mulai</label>
+        <label>Start Date</label>
         <input type="date" v-model="startDate" @change="fetchData" />
       </div>
       <div class="filter-group">
-        <label>Periode Selesai</label>
+        <label>End Date</label>
         <input type="date" v-model="endDate" @change="fetchData" />
       </div>
       <div class="filter-group">
-        <label>Filter Menu</label>
+        <label>Menu Filter</label>
         <select v-model="selectedMenuId" @change="fetchData">
-          <option value="">Semua Menu</option>
+          <option value="">All Menu</option>
           <option v-for="menu in allMenus" :key="menu.id" :value="menu.id">
             {{ menu.name }}
           </option>
@@ -26,21 +26,21 @@
     <div class="chart-card">
       <canvas ref="canvasRef"></canvas>
       <div v-if="loading" class="loading-overlay">Loading...</div>
-      <div v-else-if="chartData.length === 0" class="loading-overlay">Tidak ada data untuk periode yang dipilih</div>
+      <div v-else-if="chartData.length === 0" class="loading-overlay">No data for the selected date</div>
     </div>
 
     <div class="stats-row" v-if="chartData.length">
       <div class="stat-card">
-        <span class="stat-label">Menu Terlaris</span>
+        <span class="stat-label">Best Selling Menu</span>
         <span class="stat-value">{{ topMenuName }}</span>
         <span class="stat-meta">{{ topMenuQuantity }} pcs</span>
       </div>
       <div class="stat-card">
-        <span class="stat-label">Total Terjual</span>
+        <span class="stat-label">Total Sales</span>
         <span class="stat-value">{{ totalQuantity }} pcs</span>
       </div>
       <div class="stat-card">
-        <span class="stat-label">Menu Terendah</span>
+        <span class="stat-label">Least Popular Menu</span>
         <span class="stat-value">{{ bottomMenuName || '-' }}</span>
         <span class="stat-meta">{{ bottomMenuQuantity }} pcs</span>
       </div>
