@@ -138,6 +138,13 @@
         </div>
       </div>
     </div>
+    <!-- Toast Notification -->
+    <Transition name="fade">
+      <div v-if="toast.show" :class="['toast-notification', toast.type]">
+        <span>{{ toast.type === 'success' ? '✅' : '⚠️' }}</span>
+        {{ toast.message }}
+      </div>
+    </Transition>
   </MainLayout>
 </template>
 
@@ -168,6 +175,20 @@ const editForm = ref({
   role: "ADMIN",
 });
 
+// Toast notification state
+const toast = ref({
+  show: false,
+  message: '',
+  type: 'success'
+});
+
+const showToast = (message, type = 'success') => {
+  toast.value = { show: true, message, type };
+  setTimeout(() => {
+    toast.value.show = false;
+  }, 3000);
+};
+
 const fetchUsers = async () => {
   loading.value = true;
   try {
@@ -176,7 +197,7 @@ const fetchUsers = async () => {
     users.value = response.data.data || [];
   } catch (error) {
     console.error("Gagal mengambil data user:", error);
-    alert("Gagal mengambil data user");
+    showToast("Gagal mengambil data user", "error");
   } finally {
     loading.value = false;
   }
@@ -225,10 +246,10 @@ const handleUpdate = async () => {
     await updateUser(selectedUser.value.id, payload);
     closeUpdateModal();
     await fetchUsers();
-    alert("User berhasil diupdate");
+    showToast("User berhasil diupdate", "success");
   } catch (error) {
     console.error("Gagal update user:", error);
-    alert(error?.response?.data?.message || "Gagal update user");
+    showToast(error?.response?.data?.message || "Gagal update user", "error");
   } finally {
     submitting.value = false;
   }
@@ -252,10 +273,10 @@ const handleDelete = async () => {
     await deleteUser(selectedUser.value.id);
     closeDeleteModal();
     await fetchUsers();
-    alert("User berhasil dihapus");
+    showToast("User berhasil dihapus", "success");
   } catch (error) {
     console.error("Gagal delete user:", error);
-    alert(error?.response?.data?.message || "Gagal delete user");
+    showToast(error?.response?.data?.message || "Gagal delete user", "error");
   } finally {
     submitting.value = false;
   }
@@ -281,7 +302,7 @@ const errorMessage = ref('');
 const handleRegister = async () => {
   try {
     await authStore.register(formData.value);
-    alert('User berhasil dibuat');
+    showToast('User berhasil dibuat', 'success');
     await fetchUsers();
   } catch (e) {
     errorMessage.value = e.message;
@@ -486,5 +507,35 @@ td {
 .error-text {
   color: red;
   font-size: 12px;
+}
+
+.toast-notification {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  padding: 16px 24px;
+  border-radius: 12px;
+  color: white;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  z-index: 9999;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+.toast-notification.success {
+  background-color: #158f67;
+  border-left: 5px solid #0d5f44;
+}
+.toast-notification.error {
+  background-color: #d91f11;
+  border-left: 5px solid #a1170d;
+}
+.fade-enter-active, .fade-leave-active {
+  transition: opacity 0.5s, transform 0.5s;
+}
+.fade-enter-from, .fade-leave-to {
+  opacity: 0;
+  transform: translateY(-20px);
 }
 </style>
