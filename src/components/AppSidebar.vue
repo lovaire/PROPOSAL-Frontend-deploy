@@ -89,7 +89,14 @@
       >
         Income Summary
       </router-link>
-      <router-link to="/menu-performance" class="submenu-item">Menu Performance</router-link>
+      <router-link 
+          v-if="isAdmin || isManajerial && ['/sales', '/menu', '/income-summary', '/revenue-summary'].some((path) => route.path.includes(path))"
+          to="/menu-performance" 
+          class="submenu-item"
+          active-class="active"
+      >
+        Menu Performance
+      </router-link>
 
       <router-link v-if="isAdmin || isKeuangan" to="/invoice-supplier" class="menu-item" active-class="active">
         Invoice Supplier
