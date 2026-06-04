@@ -30,21 +30,21 @@
 
       <div class="summary-grid" v-if="summaryData">
         <div class="summary-card card-revenue">
-          <div class="card-icon">📈</div>
+          <PhChartLineUp :size="32" />
           <div>
             <div class="card-label">Total Pemasukan</div>
             <div class="card-value">{{ formatCurrency(summaryData.totalPemasukan) }}</div>
           </div>
         </div>
         <div class="summary-card card-expense">
-          <div class="card-icon">📉</div>
+          <PhChartLineDown :size="32" />
           <div>
             <div class="card-label">Total Pengeluaran</div>
             <div class="card-value">{{ formatCurrency(summaryData.totalPengeluaran) }}</div>
           </div>
         </div>
         <div class="summary-card card-profit" :class="{ 'negative': summaryData.totalKeuntungan < 0 }">
-          <div class="card-icon">💰</div>
+          <PhMoneyWavy :size="32" weight="fill" />
           <div>
             <div class="card-label">Net Profit (Keuntungan)</div>
             <div class="card-value">{{ formatCurrency(summaryData.totalKeuntungan) }}</div>

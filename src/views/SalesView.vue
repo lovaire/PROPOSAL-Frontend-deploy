@@ -35,8 +35,8 @@
             <td>{{ sale.status }}</td>
             <td class="action-buttons">
               <button class="update-btn" @click="openDetailModal(sale)">Detail</button>
-              <button class="update-btn" @click="openEditModal(sale)">Edit</button>
-              <button class="delete-btn" @click="openInvoiceModal(sale)">Buat Invoice</button>
+              <button v-if="sale.status !== 'PAID'" class="update-btn" @click="openEditModal(sale)">Edit</button>
+              <button class="delete-btn" @click="openInvoiceModal(sale)">Create Invoice</button>
             </td>
           </tr>
         </tbody>
@@ -136,11 +136,11 @@
     <!-- Modal Invoice -->
     <div v-if="showInvoiceModal" class="modal-overlay" @click.self="closeInvoiceModal">
       <div class="modal-box">
-        <h2>Buat Invoice</h2>
+        <h2>Create Invoice</h2>
         <div class="modal-content">
-          <label>Tanggal Invoice</label>
+          <label>Invoice Date</label>
           <input type="datetime-local" v-model="invoiceData.invoiceDate" />
-          <label>Metode Pembayaran</label>
+          <label>Payment Method</label>
           <select v-model="invoiceData.paymentMethod">
             <option value="CASH">Cash</option>
             <option value="DEBIT">Debit</option>
@@ -155,6 +155,13 @@
         </div>
       </div>
     </div>
+    <!-- Toast Notification -->
+    <Transition name="fade">
+      <div v-if="toast.show" :class="['toast-notification', toast.type]">
+        <span>{{ toast.type === 'success' ? '✅' : '⚠️' }}</span>
+        {{ toast.message }}
+      </div>
+    </Transition>
   </MainLayout>
 </template>
 
@@ -268,6 +275,21 @@ const addItem = () => {
 const removeItem = (idx) => {
   form.value.items.splice(idx, 1);
 };
+
+// Toast notification state
+const toast = ref({
+  show: false,
+  message: '',
+  type: 'success'
+});
+
+const showToast = (message, type = 'success') => {
+  toast.value = { show: true, message, type };
+  setTimeout(() => {
+    toast.value.show = false;
+  }, 3000);
+};
+
 const submitForm = async () => {
   try {
     const payload = { ...form.value };
@@ -282,17 +304,17 @@ const submitForm = async () => {
     }
     if (isEdit.value) {
       await updateSales(form.value.id, payload);
-      alert('Penjualan berhasil diupdate');
+      showToast('Penjualan berhasil diupdate', 'success');
     } else {
       await createSales(payload);
-      alert('Penjualan berhasil ditambahkan');
+      showToast('Penjualan berhasil ditambahkan', 'success');
     }
     closeFormModal();
     await fetchData();
   } catch (error) {
     console.error(error);
     errorMessage.value = error.message;
-    alert('Gagal menyimpan penjualan');
+    showToast('Gagal menyimpan penjualan', 'error');
   }
 };
 
@@ -300,7 +322,7 @@ const openInvoiceModal = async (sale) => {
   try {
     const token = localStorage.getItem('token');
     if (!token) {
-      alert('Anda belum login. Silakan login kembali.');
+      showToast('Anda belum login. Silakan login kembali.', 'error');
       return;
     }
 
@@ -323,11 +345,11 @@ const openInvoiceModal = async (sale) => {
     link.click();
     link.remove();
     window.URL.revokeObjectURL(url);
-    alert('Invoice berhasil dibuat dan diunduh');
+    showToast('Invoice berhasil dibuat dan diunduh', 'success');
   } catch (error) {
     console.error(error);
     const errorMsg = error.response?.data?.message || error.message;
-    alert('Gagal membuat invoice: ' + errorMsg);
+    showToast('Gagal membuat invoice: ' + errorMsg, 'error');
   }
 };
 const closeInvoiceModal = () => {
@@ -341,12 +363,12 @@ const closeInvoiceModal = () => {
 const submitInvoice = async () => {
   try {
     await createInvoice(invoiceData.value);
-    alert('Invoice berhasil dibuat');
+    showToast('Invoice berhasil dibuat', 'success');
     closeInvoiceModal();
     await fetchData();
   } catch (error) {
     console.error(error);
-    alert('Gagal membuat invoice: ' + (error.response?.data?.message || error.message));
+    showToast('Gagal membuat invoice: ' + (error.response?.data?.message || error.message), 'error');
   }
 };
 
@@ -563,5 +585,35 @@ td {
   .button-group {
     justify-content: flex-end;
   }
+}
+
+.toast-notification {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  padding: 16px 24px;
+  border-radius: 12px;
+  color: white;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  z-index: 9999;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+.toast-notification.success {
+  background-color: #158f67;
+  border-left: 5px solid #0d5f44;
+}
+.toast-notification.error {
+  background-color: #d91f11;
+  border-left: 5px solid #a1170d;
+}
+.fade-enter-active, .fade-leave-active {
+  transition: opacity 0.5s, transform 0.5s;
+}
+.fade-enter-from, .fade-leave-to {
+  opacity: 0;
+  transform: translateY(-20px);
 }
 </style>

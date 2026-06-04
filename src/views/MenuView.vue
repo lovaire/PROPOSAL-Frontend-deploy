@@ -6,7 +6,7 @@
     </div>
 
     <div class="table-card">
-      <table>
+      <table class="min-w-full bg-white border">
         <thead>
           <tr>
             <th>ID</th>
@@ -23,7 +23,7 @@
           </tr>
           <tr v-else-if="products.length === 0">
             <td colspan="6" class="state-text">Belum ada menu.</td>
-           </tr>
+          </tr>
           <tr v-else v-for="prod in products" :key="prod.id">
             <td>{{ prod.id }}</td>
             <td>{{ prod.name }}</td>
@@ -77,11 +77,18 @@
 
         <div class="modal-actions">
           <button type="button" class="cancel-btn" @click="closeModal">Batal</button>
-
           <button type="submit" class="confirm-delete-btn">Simpan</button>
         </div>
       </form>
     </div>
+
+    <!-- Toast Notification -->
+    <Transition name="fade">
+      <div v-if="toast.show" :class="['toast-notification', toast.type]">
+        <span>{{ toast.type === 'success' ? '✅' : '⚠️' }}</span>
+        {{ toast.message }}
+      </div>
+    </Transition>
   </MainLayout>
 </template>
 
@@ -97,6 +104,19 @@ const isEdit = ref(false);
 const form = ref({ name: '', price: 0, category: 'MAIN_COURSE' });
 const editingId = ref(null);
 
+const toast = ref({
+  show: false,
+  message: '',
+  type: 'success'
+});
+
+const showToast = (message, type = 'success') => {
+  toast.value = { show: true, message, type };
+  setTimeout(() => {
+    toast.value.show = false;
+  }, 3000);
+};
+
 const fetchProducts = async () => {
   loading.value = true;
   try {
@@ -104,6 +124,7 @@ const fetchProducts = async () => {
     products.value = res.data.data;
   } catch (error) {
     console.error(error);
+    showToast('Gagal memuat data menu', 'error');
   } finally {
     loading.value = false;
   }
@@ -136,26 +157,27 @@ const submitForm = async () => {
   try {
     if (isEdit.value) {
       await updateProduct({ id: editingId.value, ...form.value });
-      alert('Menu berhasil diupdate');
+      showToast('Menu berhasil diupdate', 'success');
     } else {
       await createProduct(form.value);
-      alert('Menu berhasil ditambahkan');
+      showToast('Menu berhasil ditambahkan', 'success');
     }
     closeModal();
     await fetchProducts();
   } catch (error) {
     console.error(error);
-    alert('Gagal menyimpan menu');
+    showToast(error.response?.data?.message || 'Gagal menyimpan menu', 'error');
   }
 };
 
 const toggleStatus = async (prod) => {
   try {
     await updateProductStatus(prod.id);
+    showToast(`Menu berhasil ${prod.isActive ? 'dinonaktifkan' : 'diaktifkan'}`, 'success');
     await fetchProducts();
   } catch (error) {
     console.error(error);
-    alert('Gagal mengubah status menu');
+    showToast('Gagal mengubah status menu', 'error');
   }
 };
 
@@ -163,6 +185,7 @@ onMounted(fetchProducts);
 </script>
 
 <style scoped>
+/* style yang sudah ada, termasuk toast style */
 .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
 .create-btn { background-color: #dff0e7; color: #3a6f5c; border: none; border-radius: 12px; padding: 14px 22px; font-size: 16px; font-weight: 600; cursor: pointer; }
 .table-card { background: #fff; border-radius: 20px; overflow: hidden; border: 1px solid #f0deda; }
@@ -185,4 +208,34 @@ td { border-top: 1px solid #f3e5e1; color: #444; }
 .confirm-delete-btn { background: white; border: 2px solid #3aa17e; color: #2c8a6a; border-radius: 10px; padding: 12px 28px; cursor: pointer; }
 .status-active { color: #2e7d32; font-weight: bold; }
 .status-inactive { color: #d32f2f; font-weight: bold; }
+
+.toast-notification {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  padding: 16px 24px;
+  border-radius: 12px;
+  color: white;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  z-index: 9999;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+.toast-notification.success {
+  background-color: #158f67;
+  border-left: 5px solid #0d5f44;
+}
+.toast-notification.error {
+  background-color: #d91f11;
+  border-left: 5px solid #a1170d;
+}
+.fade-enter-active, .fade-leave-active {
+  transition: opacity 0.5s, transform 0.5s;
+}
+.fade-enter-from, .fade-leave-to {
+  opacity: 0;
+  transform: translateY(-20px);
+}
 </style>

@@ -78,7 +78,7 @@
           to="/revenue-summary"
           active-class="active"
       >
-        Revenue Summary (Kotor)
+        Revenue Summary
       </router-link>
 
       <router-link
@@ -87,8 +87,9 @@
           to="/income-summary"
           active-class="active"
       >
-        Summary (Income)
+        Income Summary
       </router-link>
+      <router-link to="/menu-performance" class="submenu-item">Menu Performance</router-link>
 
       <router-link v-if="isAdmin || isKeuangan" to="/invoice-supplier" class="menu-item" active-class="active">
         Invoice Supplier

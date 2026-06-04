@@ -87,6 +87,12 @@ const routes = [
         meta: { requiresAuth: true}
     },
     {
+        path: '/menu-performance',
+        name: 'MenuPerformance',
+        component: () => import('@/views/MenuPerformance.vue'),
+        meta: { requiresAuth: true }
+        },
+    {
         path: '/menu',
         name: 'Menu',
         component: () => import('@/views/MenuView.vue'),
