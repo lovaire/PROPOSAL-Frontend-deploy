@@ -2,14 +2,17 @@
   <MainLayout>
     <div class="page-header">
       <div></div>
-      <button class="create-btn" @click="openRegisterModal()" v-if="isAdmin">+ Create Account</button>
+      <button class="create-btn" @click="openRegisterModal()" v-if="isAdmin">
+        <span>+</span>
+        <span class="hidden sm:inline"> Create Account</span>
+      </button>
     </div>
 
     <div class="table-card">
       <table>
         <thead>
           <tr>
-            <th>ID</th>
+            <th class="hidden sm:inline">ID</th>
             <th>Username</th>
             <th>Role</th>
             <th class="action-col">Action</th>
@@ -26,7 +29,7 @@
           </tr>
 
           <tr v-else v-for="user in users" :key="user.id">
-            <td>{{ user.id }}</td>
+            <td class="hidden sm:inline">{{ user.id }}</td>
             <td>{{ user.username }}</td>
             <td>{{ capitalizeRole(user.role) }}</td>
             <td class="action-buttons">
@@ -341,7 +344,7 @@ onMounted(() => {
 .table-card {
   background: #fff;
   border-radius: 20px;
-  overflow: hidden;
+  overflow: auto;
   border: 1px solid #f0deda;
 }
 table {

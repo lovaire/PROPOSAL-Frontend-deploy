@@ -2,7 +2,10 @@
   <MainLayout>
     <div class="page-header">
       <h2>Master Items</h2>
-      <button class="create-btn" @click="openAddModal()">+ Add Item</button>
+      <button class="create-btn" @click="openAddModal()">
+        <span>+</span>
+        <span class="hidden sm:inline">Add Item</span>
+      </button>
     </div>
 
     <div class="table-card">

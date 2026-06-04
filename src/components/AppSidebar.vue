@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col justify-between h-screen min-w-64 p-5 w-1/6 gap-3 bg-white border border-r-gray-100 max-sm:fixed shadow-xl">
+  <div class="flex flex-col justify-between h-screen min-w-64 p-5 w-1/6 gap-3 bg-white border border-r-gray-100 max-sm:fixed shadow-xl z-50">
     <div class="flex justify-between">
       <div class="flex items-center gap-2.5">
         <img :src="logoUrl" alt="Logo" class="w-10 h-9 object-contain" />
