@@ -129,9 +129,9 @@ const hasRole = (roles) => roles.includes(userRole.value);
 
 // Mapping role ke menu
 const isAdmin = computed(() => userRole.value === 'admin');
-const showMasterBarang = computed(() => hasRole(['admin', 'manager', 'inventory']));
-const showListSupplier = computed(() => hasRole(['admin', 'manager', 'inventory']));
-const showTransactions = computed(() => hasRole(['admin', 'manager', 'financial']));
+const showMasterBarang = computed(() => hasRole(['admin', 'inventory']));
+const showListSupplier = computed(() => hasRole(['admin', 'inventory']));
+const showTransactions = computed(() => hasRole(['admin', 'financial']));
 const showDistribusi = computed(() => hasRole(['admin', 'manager', 'inventory']));
 const showTaxRecap = computed(() => hasRole(['admin', 'manager']));
 const showTaxReport = computed(() => hasRole(['admin', 'manager', 'financial']));
