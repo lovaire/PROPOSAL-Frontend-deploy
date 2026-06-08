@@ -22,7 +22,7 @@
           </button>
         </div>
 
-        <div class="toolbar-right">
+        <div class="toolbar-right overflow-y-auto">
           <div class="toolbar-field date-field">
             <label class="toolbar-label">Start Date</label>
             <input v-model="startDate" class="toolbar-input date-input" type="date" />
@@ -36,7 +36,7 @@
           <button class="toolbar-btn secondary" type="button" :disabled="loading" @click="fetchData">
             {{ loading ? 'Loading...' : 'Apply' }}
           </button>
-          
+
           <button class="toolbar-btn ghost" type="button" @click="resetFilters">Reset</button>
         </div>
       </div>
@@ -255,7 +255,7 @@ onMounted(fetchData)
 
 .section-title { font-size: 18px; font-weight: 800; color: #171717; margin-bottom: 16px; }
 
-.table-shell { background: #ffffff; border: 1px solid #eedfd8; border-radius: 20px; overflow: hidden; }
+.table-shell { background: #ffffff; border: 1px solid #eedfd8; border-radius: 20px; overflow: auto; }
 .tax-table { width: 100%; border-collapse: collapse; min-width: 800px; }
 .tax-table thead tr { background: #f3e6e1; }
 .tax-table th, .tax-table td { padding: 16px; text-align: left; font-size: 14px; color: #262626; border-bottom: 1px solid #f1e4df; }

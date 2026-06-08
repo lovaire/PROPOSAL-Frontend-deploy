@@ -283,6 +283,7 @@ p {
   border-radius: 16px;
   border: 1px solid #eedfd8;
   margin-bottom: 20px;
+  overflow: auto;
 }
 
 .toolbar-left {

@@ -756,7 +756,7 @@ onMounted(() => {
   background: #ffffff;
   border: 1px solid #eedfd8;
   border-radius: 22px;
-  overflow: hidden;
+  overflow: auto;
   max-width: 100%;
 }
 

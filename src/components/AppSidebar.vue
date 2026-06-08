@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col justify-between h-screen min-w-64 p-5 w-1/6 gap-3 bg-white border border-r-gray-100 max-sm:fixed shadow-xl">
+  <div class="flex flex-col justify-between h-screen min-w-64 p-5 w-1/6 gap-3 bg-white border border-r-gray-100 max-sm:fixed shadow-xl z-50">
     <div class="flex justify-between">
       <div class="flex items-center gap-2.5">
         <img :src="logoUrl" alt="Logo" class="w-10 h-9 object-contain" />
@@ -20,10 +20,6 @@
         User Management
       </router-link>
 
-      <router-link v-if="isAdmin || isManajerial" to="/dashboard-roi" class="menu-item" active-class="active">
-        Dashboard ROI
-      </router-link>
-
       <!-- Manager & Inventory & Admin -->
       <router-link v-if="isAdmin || isManajerial || isInventori" to="/items" class="menu-item" active-class="active">
         Item Master
@@ -42,12 +38,12 @@
       </router-link>
 
       <router-link
-          v-if="isAdmin || isManajerial && ['/distributions', '/distributions/summary' ].some((path) => route.path.includes(path))"
+          v-if="(isAdmin || isManajerial) && ['/distributions', '/distributions/summary' ].some((path) => route.path.includes(path))"
           class="submenu-item"
           to="/distributions/summary"
           active-class="active"
       >
-        Summary
+        Distribution Summary
       </router-link>
 
       <router-link v-if="isAdmin || isManajerial" to="/tax-recap" class="menu-item">
@@ -65,7 +61,7 @@
       </router-link>
 
       <router-link
-          v-if="(isAdmin || isManajerial || isKeuangan) && ['/sales', '/menu', '/income-summary', '/revenue-summary'].some((path) => route.path.includes(path))"
+          v-if="(isAdmin || isManajerial || isKeuangan) && ['/sales', '/menu', '/income-summary', '/revenue-summary', '/menu-performance'].some((path) => route.path.includes(path))"
           class="submenu-item"
           to="/menu"
           active-class="active"
@@ -73,7 +69,7 @@
         Menu
       </router-link>
       <router-link
-          v-if="(isAdmin || isManajerial || isKeuangan) && ['/sales', '/menu', '/income-summary', '/revenue-summary'].some((path) => route.path.includes(path))"
+          v-if="(isAdmin || isManajerial || isKeuangan) && ['/sales', '/menu', '/income-summary', '/revenue-summary', '/menu-performance'].some((path) => route.path.includes(path))"
           class="submenu-item"
           to="/revenue-summary"
           active-class="active"
@@ -82,14 +78,20 @@
       </router-link>
 
       <router-link
-          v-if="isAdmin || isManajerial && ['/sales', '/menu', '/income-summary', '/revenue-summary'].some((path) => route.path.includes(path))"
+          v-if="(isAdmin || isManajerial) && ['/sales', '/menu', '/income-summary', '/revenue-summary', '/menu-performance'].some((path) => route.path.includes(path))"
           class="submenu-item"
           to="/income-summary"
           active-class="active"
       >
         Income Summary
       </router-link>
-      <router-link to="/menu-performance" class="submenu-item" active-class="active" v-if="isAdmin || isManajerial && ['/sales', '/menu', '/income-summary', '/revenue-summary'].some((path) => route.path.includes(path))">Menu Performance</router-link>
+
+      <router-link
+          v-if="(isAdmin || isManajerial) && ['/sales', '/menu', '/income-summary', '/revenue-summary', '/menu-performance'].some((path) => route.path.includes(path))"
+          to="/menu-performance"
+          class="submenu-item"
+          active-class="active"
+      >Menu Performance</router-link>
 
       <router-link v-if="isAdmin || isKeuangan" to="/invoice-supplier" class="menu-item" active-class="active">
         Invoice Supplier
@@ -98,6 +100,10 @@
       <router-link v-if="isAdmin || isManajerial" to="/financial-performance" class="menu-item" active-class="active">
         <span class="icon"></span>
         <span class="text">Financial Performance</span>
+      </router-link>
+
+      <router-link v-if="isAdmin || isManajerial" to="/dashboard-roi" class="menu-item" active-class="active">
+        Dashboard ROI
       </router-link>
     </nav>
 

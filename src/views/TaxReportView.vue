@@ -23,7 +23,7 @@
           </a>
         </div>
 
-        <div class="toolbar-right">
+        <div class="toolbar-right overflow-y-auto">
           <div class="toolbar-field date-field">
             <label class="toolbar-label">Start Date</label>
             <input v-model="startDate" class="toolbar-input date-input" type="date" />
@@ -423,7 +423,7 @@ onMounted(() => {
 
 .table-shell {
   background: #ffffff; border: 1px solid #eedfd8; border-radius: 16px;
-  overflow: hidden; margin-top: 10px;
+  overflow: auto; margin-top: 10px;
 }
 .transaction-table { width: 100%; border-collapse: collapse; text-align: left; }
 .transaction-table th { padding: 14px 20px; font-size: 13px; font-weight: 800; color: #5d5a57; background: #faf8f7; border-bottom: 2px solid #eedfd8;}

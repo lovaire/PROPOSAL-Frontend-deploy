@@ -188,7 +188,7 @@ onMounted(fetchProducts);
 /* style yang sudah ada, termasuk toast style */
 .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
 .create-btn { background-color: #dff0e7; color: #3a6f5c; border: none; border-radius: 12px; padding: 14px 22px; font-size: 16px; font-weight: 600; cursor: pointer; }
-.table-card { background: #fff; border-radius: 20px; overflow: hidden; border: 1px solid #f0deda; }
+.table-card { background: #fff; border-radius: 20px; overflow: auto; border: 1px solid #f0deda; }
 table { width: 100%; border-collapse: collapse; }
 thead { background-color: #f4dfda; }
 th, td { text-align: left; padding: 18px 20px; font-size: 14px; color: #333; }
