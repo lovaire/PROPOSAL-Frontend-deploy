@@ -5,14 +5,12 @@
         <div class="filter-header">
           <div class="title-group">
             <h2>Analisis Performa ROI</h2>
-            <!-- Indikator filter agar muncul di PDF sebagai identitas laporan -->
             <p class="filter-subtitle">
-              Annual Report: {{ filters.year }} | Scale: {{ filters.type === 'quarter' ? 'Kuartal' : 'Bulanan' }}
+              Periode: {{ filters.startDate }} s/d {{ filters.endDate }} | Skala Sumbu X: {{ viewMode === 'weekly' ? 'Mingguan' : 'Bulanan (Dinamis)' }}
             </p>
           </div>
           
           <div class="filter-controls">
-            <!-- Tombol Export PDF -->
             <button 
               @click="exportToPDF" 
               class="export-btn" 
@@ -23,16 +21,25 @@
               <span v-else>Export PDF</span>
             </button>
 
-            <!-- Filter Tahun -->
-            <select v-model="filters.year" @change="fetchAndProcess" class="select-input" data-html2canvas-ignore>
-              <option v-for="y in [2024, 2025, 2026, 2027, 2028, 2029, 2030]" :key="y" :value="y">{{ y }}</option>
-            </select>
+            <div class="date-input-group" data-html2canvas-ignore>
+              <label>Dari:</label>
+              <input 
+                type="date" 
+                v-model="filters.startDate" 
+                @change="fetchAndProcess" 
+                class="date-input"
+              />
+            </div>
 
-            <!-- Filter Skala -->
-            <select v-model="filters.type" @change="processData" class="select-input" data-html2canvas-ignore>
-              <option value="quarter">Per Kuartal (Q1-Q4)</option>
-              <option value="month">Per Bulan (Jan-Des)</option>
-            </select>
+            <div class="date-input-group" data-html2canvas-ignore>
+              <label>Sampai:</label>
+              <input 
+                type="date" 
+                v-model="filters.endDate" 
+                @change="fetchAndProcess" 
+                class="date-input"
+              />
+            </div>
           </div>
         </div>
 
@@ -66,10 +73,12 @@ const loaded = ref(false);
 const exporting = ref(false);
 const chartData = ref(null);
 const rawBackendData = ref(null);
+const viewMode = ref('monthly'); 
 
+const currentYear = new Date().getFullYear();
 const filters = ref({
-  year: 2026,
-  type: 'quarter'
+  startDate: `${currentYear}-01-01`,
+  endDate: `${currentYear}-12-31`
 });
 
 const chartOptions = {
@@ -93,7 +102,6 @@ const chartOptions = {
   }
 };
 
-
 const exportToPDF = async () => {
   exporting.value = true;
   try {
@@ -116,7 +124,7 @@ const exportToPDF = async () => {
     const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
 
     pdf.addImage(imgData, 'PNG', 0, 10, pdfWidth, pdfHeight);
-    pdf.save(`ROI-Report-${filters.value.year}-${filters.value.type}.pdf`);
+    pdf.save(`ROI-Report-${filters.value.startDate}-to-${filters.value.endDate}.pdf`);
   } catch (err) {
     console.error("Gagal export PDF:", err);
   } finally {
@@ -125,13 +133,24 @@ const exportToPDF = async () => {
 };
 
 const fetchAndProcess = async () => {
+  if (!filters.value.startDate || !filters.value.endDate) return;
+  
   loaded.value = false;
   try {
-    const start = `${filters.value.year}-01-01`;
-    const end = `${filters.value.year}-12-31`;
-    const res = await getDashboardRoi(start, end);
-    
+    const res = await getDashboardRoi(filters.value.startDate, filters.value.endDate);
     rawBackendData.value = res.data;
+    
+    const start = new Date(filters.value.startDate);
+    const end = new Date(filters.value.endDate);
+    const diffTime = Math.abs(end - start);
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    
+    if (diffDays <= 31) {
+      viewMode.value = 'weekly';
+    } else {
+      viewMode.value = 'monthly';
+    }
+
     processData();
   } catch (err) {
     console.error("Gagal fetch data:", err);
@@ -147,42 +166,74 @@ const processData = () => {
   let finalCosts = [];
   let finalRoi = [];
 
-  if (filters.value.type === 'quarter') {
-    finalLabels = ['Q1', 'Q2', 'Q3', 'Q4'];
-    const qValues = {
-      Q1: { rev: 0, cost: 0 }, Q2: { rev: 0, cost: 0 },
-      Q3: { rev: 0, cost: 0 }, Q4: { rev: 0, cost: 0 }
-    };
+  const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
 
-    data.labels.forEach((dateStr, index) => {
-      const month = new Date(dateStr).getMonth() + 1;
-      let qKey = 'Q1';
-      if (month >= 4 && month <= 6) qKey = 'Q2';
-      else if (month >= 7 && month <= 9) qKey = 'Q3';
-      else if (month >= 10 && month <= 12) qKey = 'Q4';
+  if (viewMode.value === 'weekly') {
+    // 1. MODE MINGGUAN (Rentang <= 31 Hari)
+    finalLabels = ['Minggu 1', 'Minggu 2', 'Minggu 3', 'Minggu 4', 'Minggu 5'];
+    const wValues = Array(5).fill(0).map(() => ({ rev: 0, cost: 0 }));
 
-      qValues[qKey].rev += data.revenue[index] || 0;
-      qValues[qKey].cost += data.costs[index] || 0;
-    });
+    if (data.labels) {
+      data.labels.forEach((dateStr, index) => {
+        const dayOfMonth = new Date(dateStr).getDate();
+        let weekIndex = Math.floor((dayOfMonth - 1) / 7);
+        if (weekIndex > 4) weekIndex = 4;
 
-    finalLabels.forEach(q => {
-      finalRevenue.push(qValues[q].rev);
-      finalCosts.push(qValues[q].cost);
-      const roi = qValues[q].cost > 0 ? ((qValues[q].rev - qValues[q].cost) / qValues[q].cost) * 100 : 0;
+        wValues[weekIndex].rev += data.revenue[index] || 0;
+        wValues[weekIndex].cost += data.costs[index] || 0;
+      });
+    }
+
+    wValues.forEach(w => {
+      finalRevenue.push(w.rev);
+      finalCosts.push(w.cost);
+      const roi = w.cost > 0 ? ((w.rev - w.cost) / w.cost) * 100 : 0;
       finalRoi.push(roi);
     });
 
   } else {
-    finalLabels = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
-    const mValues = Array(12).fill(0).map(() => ({ rev: 0, cost: 0 }));
+    // 2. MODE BULANAN DINAMIS (Rentang > 31 Hari)
+    const start = new Date(filters.value.startDate);
+    const end = new Date(filters.value.endDate);
+    
+    // Bikin list key 'YYYY-MM' untuk bulan-bulan yang masuk rentang filter saja
+    const current = new Date(start.getFullYear(), start.getMonth(), 1);
+    const dynamicBulanMap = {}; // Format: { '2026-02': { rev: 0, cost: 0 }, '2026-03': {...} }
 
-    data.labels.forEach((dateStr, index) => {
-      const monthIndex = new Date(dateStr).getMonth();
-      mValues[monthIndex].rev += data.revenue[index] || 0;
-      mValues[monthIndex].cost += data.costs[index] || 0;
-    });
+    while (current <= end) {
+      const yyyy = current.getFullYear();
+      const mm = String(current.getMonth() + 1).padStart(2, '0');
+      const key = `${yyyy}-${mm}`;
+      
+      // Simpan label teks-nya untuk sumbu X (misal: "Feb 2026" atau "Feb" saja jika tahunnya sama)
+      const labelTeks = start.getFullYear() === end.getFullYear() 
+        ? monthNames[current.getMonth()] 
+        : `${monthNames[current.getMonth()]} ${yyyy}`;
+        
+      finalLabels.push(labelTeks);
+      dynamicBulanMap[key] = { rev: 0, cost: 0 };
+      
+      // Pindah ke bulan berikutnya
+      current.setMonth(current.getMonth() + 1);
+    }
 
-    mValues.forEach(m => {
+    // Kelompokkan data backend Neon ke map bulan dinamis yang sudah dibuat
+    if (data.labels) {
+      data.labels.forEach((dateStr, index) => {
+        const d = new Date(dateStr);
+        const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+        
+        // Pastikan key-nya terdaftar (masuk dalam range filter)
+        if (dynamicBulanMap[key]) {
+          dynamicBulanMap[key].rev += data.revenue[index] || 0;
+          dynamicBulanMap[key].cost += data.costs[index] || 0;
+        }
+      });
+    }
+
+    // Masukkan data hasil kelompok ke array Chart
+    Object.keys(dynamicBulanMap).forEach(key => {
+      const m = dynamicBulanMap[key];
       finalRevenue.push(m.rev);
       finalCosts.push(m.cost);
       const roi = m.cost > 0 ? ((m.rev - m.cost) / m.cost) * 100 : 0;
@@ -195,7 +246,7 @@ const processData = () => {
     datasets: [
       { label: 'Revenue', data: finalRevenue, borderColor: '#158f67', backgroundColor: 'rgba(21, 143, 103, 0.1)', fill: true, yAxisID: 'y', tension: 0.3 },
       { label: 'Total Cost', data: finalCosts, borderColor: '#d91f11', backgroundColor: 'transparent', yAxisID: 'y', tension: 0.3 },
-      { label: 'ROI (%)', data: finalRoi, borderColor: '#3aa17e', borderDash: [5, 5], yAxisID: 'y1', tension: 0.3 }
+      { label: 'ROI (%)', data: finalRoi, borderColor: '#eab308', borderDash: [5, 5], yAxisID: 'y1', tension: 0.3 }
     ]
   };
   loaded.value = true;
@@ -211,8 +262,9 @@ onMounted(fetchAndProcess);
 .title-group h2 { margin: 0; color: #333; }
 .filter-subtitle { margin: 4px 0 0; font-size: 14px; color: #666; }
 
-.filter-controls { display: flex; gap: 12px; align-items: center; }
-.select-input { padding: 8px 12px; border-radius: 8px; border: 1px solid #ddd; cursor: pointer; background: white; }
+.filter-controls { display: flex; gap: 16px; align-items: center; }
+.date-input-group { display: flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 500; color: #555; }
+.date-input { padding: 6px 10px; border-radius: 8px; border: 1px solid #ddd; outline: none; background: white; }
 
 .export-btn { 
   background-color: #158f67; 
@@ -234,9 +286,9 @@ onMounted(fetchAndProcess);
 @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
 /* Responsivitas */
-@media (max-width: 768px) {
+@media (max-width: 1024px) {
   .filter-header { flex-direction: column; align-items: flex-start; gap: 15px; }
   .filter-controls { width: 100%; flex-wrap: wrap; }
-  .export-btn, .select-input { flex: 1; min-width: 120px; }
+  .export-btn, .date-input-group { flex: 1; min-width: 140px; }
 }
 </style>
