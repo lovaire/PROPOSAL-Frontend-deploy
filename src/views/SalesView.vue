@@ -105,6 +105,13 @@
             <option value="QRIS">QRIS</option>
             <option value="TRANSFER">Transfer</option>
           </select>
+          <label>Tipe Pesanan</label>
+          <select v-model="form.tipePesanan" required>
+            <option value="" disabled>Pilih Tipe</option>
+            <option value="Dine In">Dine In</option>
+            <option value="Take Away">Take Away</option>
+            <option value="Delivery">Delivery</option>
+          </select>
           <label>Status</label>
           <select v-model="form.status" required>
             <option value="PENDING">Pending</option>

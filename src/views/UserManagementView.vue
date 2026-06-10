@@ -2,6 +2,15 @@
   <MainLayout>
     <div class="page-header">
       <div></div>
+      <div class="filter-group">
+        <label>Role Filter</label>
+        <select v-model="selectedRoleId" @change="fetchData">
+          <option value="">All Role</option>
+          <option v-for="role in allRoles" :key="role.id" :value="role.id">
+            {{ role.name }}
+          </option>
+        </select>
+      </div>
       <button class="create-btn" @click="openRegisterModal()" v-if="isAdmin">
         <span>+</span>
         <span class="hidden sm:inline"> Create Account</span>
@@ -171,12 +180,25 @@ const selectedUser = ref(null);
 const currentUserId = computed(() => authStore.user?.id || '');
 const currentUserRole = computed(() => authStore.user?.role || '');
 const isAdmin = computed(() => currentUserRole.value === 'ADMIN');
+const selectedRoleId = ref('');
 
 const editForm = ref({
   username: "",
   password: "",
   role: "ADMIN",
 });
+
+// const fetchData = async () => {
+//   loading.value = true;
+//   try {
+//     if (selectedRoleId.value) params.role = selectedRoleId.value;
+//     const res = await getRole(params);
+//   } catch (err) {
+//     console.error(err);
+//   } finally {
+//     loading.value = false;
+//   }
+// };
 
 // Toast notification state
 const toast = ref({
